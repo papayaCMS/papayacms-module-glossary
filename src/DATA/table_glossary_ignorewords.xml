@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<table name="glossary_ignorewords" prefix="yes">
+<fields>
+<field name="ignoreword_id" type="integer" size="4"  null="no" autoinc="yes"/>
+<field name="ignoreword_lngid" type="integer" size="4"  null="no"/>
+<field name="ignoreword" type="string" size="100"  null="no"/>
+</fields>
+<keys>
+<primary-key>
+<field>ignoreword_id</field></primary-key>
+<key name="ignorewords">
+<field>ignoreword_lngid</field><field>ignoreword</field></key>
+</keys>
+</table>

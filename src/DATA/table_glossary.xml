@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<table name="glossary" prefix="yes">
+<fields>
+<field name="glossary_id" type="integer" size="4"  null="no" autoinc="yes"/>
+</fields>
+<keys>
+<primary-key>
+<field>glossary_id</field></primary-key>
+</keys>
+</table>

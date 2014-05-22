@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<table name="glossary_trans" prefix="yes">
+<fields>
+<field name="glossary_id" type="integer" size="4"  null="no"/>
+<field name="lng_id" type="integer" size="4"  null="no"/>
+<field name="glossary_title" type="string" size="200"  null="no"/>
+<field name="glossary_text" type="string" size="65535"  null="no"/>
+</fields>
+<keys>
+<key name="glossary_id">
+<field>glossary_id</field></key>
+<key name="lng_id">
+<field>lng_id</field></key>
+</keys>
+</table>

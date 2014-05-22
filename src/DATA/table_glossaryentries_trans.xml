@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<table name="glossaryentries_trans" prefix="yes">
+<fields>
+<field name="glossaryentry_id" type="integer" size="4"  null="no"/>
+<field name="lng_id" type="integer" size="4"  null="no"/>
+<field name="glossaryentry_term" type="string" size="200"  null="no"/>
+<field name="glossaryentry_normalized" type="string" size="200"  null="no"/>
+<field name="glossaryentry_explanation" type="string" size="65535"  null="no"/>
+<field name="glossaryentry_keywords" type="string" size="65535"  null="no"/>
+<field name="glossaryentry_derivation" type="string" size="200"  null="no"/>
+<field name="glossaryentry_synonyms" type="string" size="200"  null="no"/>
+<field name="glossaryentry_abbreviations" type="string" size="200"  null="no"/>
+<field name="glossaryentry_source" type="string" size="200"  null="no"/>
+<field name="glossaryentry_links" type="string" size="200"  null="no"/>
+<field name="glossaryentry_firsttoken" type="string" size="100"  null="no"/>
+</fields>
+<keys>
+<primary-key>
+<field>glossaryentry_id</field><field>lng_id</field></primary-key>
+<key name="glossaryentry_id">
+<field>glossaryentry_id</field></key>
+<key name="lng_id">
+<field>lng_id</field><field>glossaryentry_firsttoken</field></key>
+</keys>
+</table>
