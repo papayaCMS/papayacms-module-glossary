@@ -110,6 +110,7 @@ class content_glossary extends base_content {
     unset($this->glossaryEntries);
     $this->loadEntries();
     $this->logStatistic();
+
   }
 
   /**
@@ -210,6 +211,68 @@ class content_glossary extends base_content {
     $result .= '</dialog>'.LF;
     $result .= '</search>'.LF;
     return $result;
+  }
+
+
+  function checkURLFileName($currentFileName, $outputMode) {
+    $forceRelocate = false;
+    $lngId = $this->parentObj->getContentLanguageId();
+    $this->loadEntriesById($this->params['entry_id'], $lngId);
+
+
+    if (!isset($this->params['entry_id']) &&
+      strtolower($this->parentObj->topic['TRANSLATION']['topic_title']) != $currentFileName) {
+      $res = $this->getIdByTerm($currentFileName, $lngId);
+
+      if ($res !== FALSE){
+        $this->params['entry_id'] = $res['glossaryentry_id'];
+        $this->loadEntriesById($this->params['entry_id'], $lngId);
+        $forceRelocate = true;
+      }
+    }
+
+    $entryName = $this->glossaryEntries[$this->params['entry_id']]['glossaryentry_normalized'];
+
+    $link = $this->getWebLink(
+      $this->parentObj->topicId,
+      $lngId,
+      NULL,
+      array('entry_id' => $this->params['entry_id']),
+      $this->paramName,
+      $entryName,
+      0
+    );
+
+    if (isset($this->params['entry_id']) && (
+      strtolower($this->parentObj->topic['TRANSLATION']['topic_title']) == $currentFileName || $forceRelocate)) {
+      header("Location: " . $link);
+      die;
+    }
+
+  }
+
+  protected function getIdByTerm($term, $lngId) {
+    $term = iconv("UTF-8", "ASCII//TRANSLIT", strtolower(str_replace("-", "", $term)));
+
+    $sql = "SELECT ge.glossary_id, get.glossaryentry_id,
+                   get.glossaryentry_normalized, get.lng_id
+              FROM %s AS ge, %s as get
+             WHERE get.glossaryentry_normalized = '%s'
+               AND ge.glossaryentry_id = get.glossaryentry_id
+               AND get.lng_id = %d
+
+             ORDER BY get.glossaryentry_normalized";
+    $params = array(
+      $this->glossaryObj->tableGlossaryEntries,
+      $this->glossaryObj->tableGlossaryEntriesTrans,
+      $term,
+      $lngId
+    );
+
+    if ($res = $this->glossaryObj->databaseQueryFmt(
+      $sql, $params, $this->data['steps'], $this->params['offset'])) {
+      return $res->fetchRow(DB_FETCHMODE_ASSOC);
+    }
   }
 
   /**
@@ -628,6 +691,11 @@ class content_glossary extends base_content {
           $content .= '<translations>'.LF;
           $defaultLink = $this->params;
           $defaultLink['entry_id'] = $id;
+
+          if ($this->params['offset'] > 0) {
+            $linkParams['search_offset'] = $this->params['offset'];
+          }
+
           $defaultLink['search_offset'] = $this->params['offset'];
           unset($defaultLink['offset']);
           foreach ($entry['lng_ids'] as $lngId => $title) {
@@ -670,7 +738,11 @@ class content_glossary extends base_content {
         }
         $linkParams = $this->params;
         $linkParams['entry_id'] = $id;
-        $linkParams['search_offset'] = $this->params['offset'];
+
+        if ($linkParams['mode'] == 'abc') {
+          unset($linkParams['mode']);
+        }
+
         unset($linkParams['offset']);
         $href = $this->getWebLink(
           NULL,
@@ -681,6 +753,17 @@ class content_glossary extends base_content {
           $this->parentObj->topic['TRANSLATION']['topic_title'],
           0
         );
+
+        $termHref = $this->getWebLink(
+          NULL,
+          NULL,
+          NULL,
+          $linkParams,
+          $this->paramName,
+          $entry['glossaryentry_term'],
+          0
+        );
+
         $firstChar = papaya_strings::strtoupper(
           papaya_strings::substr($entry['glossaryentry_normalized'], 0, 1)
         );
@@ -699,7 +782,7 @@ class content_glossary extends base_content {
         }
         $result .= sprintf(
           '<glossaryentry term="%s" derivation="%s" synonyms="%s"
-            abbreviations="%s" glossary="%s" number="%s" href="%s">%s</glossaryentry>',
+            abbreviations="%s" glossary="%s" number="%s" href="%s" termhref="%s">%s</glossaryentry>',
           papaya_strings::escapeHTMLChars($entry['glossaryentry_term']),
           papaya_strings::escapeHTMLChars($entry['glossaryentry_derivation']),
           papaya_strings::escapeHTMLChars($entry['glossaryentry_synonyms']),
@@ -707,6 +790,7 @@ class content_glossary extends base_content {
           papaya_strings::escapeHTMLChars($glossaryName),
           (int)$number,
           papaya_strings::escapeHTMLChars($href),
+          papaya_strings::escapeHTMLChars($termHref),
           $content
         );
       }
@@ -784,6 +868,7 @@ class content_glossary extends base_content {
       } elseif (isset($this->params['mode'])) {
         $linkParams = array('mode' => $this->params['mode']);
       }
+
       if (isset($this->params['entry_id'])) {
         $linkParams = array('entry_id' => $this->params['entry_id']);
         if (isset($this->params['refpage'])) {
@@ -795,6 +880,11 @@ class content_glossary extends base_content {
             $backParams['offset'] = $this->params['search_offset'];
             unset($backParams['search_offset']);
           }
+
+          if ($this->params['offset'] == 0) {
+            unset($backParams['offset']);
+          }
+
           unset($backParams['entry_id']);
           $backLink = $this->getWebLink(
             $this->parentObj->topicId,
@@ -825,6 +915,7 @@ class content_glossary extends base_content {
         $this->parentObj->topic['TRANSLATION']['topic_title'],
         0
       );
+
       $result .= sprintf(
         '<navi back_href="%s" all_href="%s" abc_href="%s">',
         PapayaUtilStringXml::escapeAttribute($backLink),
