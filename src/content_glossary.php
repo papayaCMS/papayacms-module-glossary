@@ -215,40 +215,41 @@ class content_glossary extends base_content {
 
 
   function checkURLFileName($currentFileName, $outputMode) {
-    $forceRelocate = false;
-    $lngId = $this->parentObj->getContentLanguageId();
-    $this->loadEntriesById($this->params['entry_id'], $lngId);
+    if (isset($this->params['entry_id'])) {
+      $forceRelocate = false;
+      $lngId = $this->parentObj->getContentLanguageId();
+      $this->loadEntriesById($this->params['entry_id'], $lngId);
 
 
-    if (!isset($this->params['entry_id']) &&
-      strtolower($this->parentObj->topic['TRANSLATION']['topic_title']) != $currentFileName) {
-      $res = $this->getIdByTerm($currentFileName, $lngId);
+      if (!isset($this->params['entry_id']) &&
+        strtolower($this->parentObj->topic['TRANSLATION']['topic_title']) != $currentFileName) {
+        $res = $this->getIdByTerm($currentFileName, $lngId);
 
-      if ($res !== FALSE){
-        $this->params['entry_id'] = $res['glossaryentry_id'];
-        $this->loadEntriesById($this->params['entry_id'], $lngId);
-        $forceRelocate = true;
+        if ($res !== FALSE){
+          $this->params['entry_id'] = $res['glossaryentry_id'];
+          $this->loadEntriesById($this->params['entry_id'], $lngId);
+          $forceRelocate = true;
+        }
+      }
+
+      $entryName = $this->glossaryEntries[$this->params['entry_id']]['glossaryentry_normalized'];
+
+      $link = $this->getWebLink(
+        $this->parentObj->topicId,
+        $lngId,
+        NULL,
+        array('entry_id' => $this->params['entry_id']),
+        $this->paramName,
+        $entryName,
+        0
+      );
+
+      if (isset($this->params['entry_id']) && (
+        strtolower($this->parentObj->topic['TRANSLATION']['topic_title']) == $currentFileName || $forceRelocate)) {
+        header("Location: " . $link);
+        die;
       }
     }
-
-    $entryName = $this->glossaryEntries[$this->params['entry_id']]['glossaryentry_normalized'];
-
-    $link = $this->getWebLink(
-      $this->parentObj->topicId,
-      $lngId,
-      NULL,
-      array('entry_id' => $this->params['entry_id']),
-      $this->paramName,
-      $entryName,
-      0
-    );
-
-    if (isset($this->params['entry_id']) && (
-      strtolower($this->parentObj->topic['TRANSLATION']['topic_title']) == $currentFileName || $forceRelocate)) {
-      header("Location: " . $link);
-      die;
-    }
-
   }
 
   protected function getIdByTerm($term, $lngId) {
