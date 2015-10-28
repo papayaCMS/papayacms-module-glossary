@@ -220,7 +220,6 @@ class content_glossary extends base_content {
       $lngId = $this->parentObj->getContentLanguageId();
       $this->loadEntriesById($this->params['entry_id'], $lngId);
 
-
       if (!isset($this->params['entry_id']) &&
         strtolower($this->parentObj->topic['TRANSLATION']['topic_title']) != $currentFileName) {
         $res = $this->getIdByTerm($currentFileName, $lngId);
@@ -300,7 +299,7 @@ class content_glossary extends base_content {
             $this->parentObj->topicId,
             NULL,
             NULL,
-            array('char' => '#', 'reset' => '1'),
+            array('char' => '#'),
             $this->paramName,
             $this->parentObj->topic['TRANSLATION']['topic_title'],
             0
@@ -320,7 +319,7 @@ class content_glossary extends base_content {
               $this->parentObj->topicId,
               NULL,
               NULL,
-              array('char' => $c, 'reset' => '1'),
+              array('char' => $c),
               $this->paramName,
               $this->parentObj->topic['TRANSLATION']['topic_title'],
               0
@@ -740,7 +739,7 @@ class content_glossary extends base_content {
         $linkParams = $this->params;
         $linkParams['entry_id'] = $id;
 
-        if ($linkParams['mode'] == 'abc') {
+        if (isset($linkParams['mode']) && $linkParams['mode'] == 'abc') {
           unset($linkParams['mode']);
         }
 
@@ -902,7 +901,7 @@ class content_glossary extends base_content {
         $this->parentObj->topicId,
         NULL,
         NULL,
-        array('mode' => 'flat', 'reset' => '1'),
+        array('mode' => 'flat'),
         $this->paramName,
         $this->parentObj->topic['TRANSLATION']['topic_title'],
         0
@@ -911,7 +910,7 @@ class content_glossary extends base_content {
         $this->parentObj->topicId,
         NULL,
         NULL,
-        array('mode' => 'abc', 'reset' => '1'),
+        array('mode' => 'abc'),
         $this->paramName,
         $this->parentObj->topic['TRANSLATION']['topic_title'],
         0
