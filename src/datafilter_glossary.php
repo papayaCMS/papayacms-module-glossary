@@ -43,10 +43,11 @@ class datafilter_glossary extends base_datafilter {
   * @var array $editFields
   */
   var $editFields = array(
-    'glossary_page_id' => array ('Glossary page id', 'isNum', TRUE, 'pageid', 5),
-    'all_glossaries'   => array('All glossaries', 'isNum', TRUE, 'yesno', '0'),
+    'glossary_page_id' => array ('Glossary page id', 'isNum', TRUE, 'pageid', 15),
+    'all_glossaries'   => array('All glossaries', 'isNum', TRUE, 'yesno', null, '', '0'),
     'glossary'         => array('Glossary', 'isNum', FALSE, 'function',
-      'callbackGlossaryCombo')
+      'callbackGlossaryCombo'),
+    'add_refpage' => array('Add reference page parameters', 'isNum', TRUE, 'yesno', null, '', 0)
   );
 
   /**
@@ -58,6 +59,8 @@ class datafilter_glossary extends base_datafilter {
   function initialize($contentObj) {
     $this->initGlossaryObject();
     if (isset($this->glossaryObj) && is_object($this->glossaryObj)) {
+      $this->glossaryObj->addReferencePageParameters = isset($this->data['add_refpage'])
+        ? (bool)$this->data['add_refpage'] : false;
       $this->lngId = $contentObj->parentObj->topic['TRANSLATION']['lng_id'];
       $this->topicId = $contentObj->parentObj->topicId;
       if (isset($this->lngId) && isset($this->topicId) &&

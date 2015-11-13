@@ -1,78 +1,80 @@
 <?php
 /**
-* Module Glossary
-*
-* @package commercial
-* @subpackage glossary
-* @version $Id: base_glossary.php 5 2014-02-13 15:41:27Z SystemVCS $
-*/
+ * Module Glossary
+ *
+ * @package commercial
+ * @subpackage glossary
+ * @version $Id: base_glossary.php 5 2014-02-13 15:41:27Z SystemVCS $
+ */
 
 /**
-* Basic class for database access
-*/
+ * Basic class for database access
+ */
 require_once(PAPAYA_INCLUDE_PATH.'system/sys_base_db.php');
 
 /**
-* Module Glossary
-*
-* @package commercial
-* @subpackage glossary
-*/
+ * Module Glossary
+ *
+ * @package commercial
+ * @subpackage glossary
+ */
 class base_glossary extends base_db {
 
   /**
-  * Database table for glossaries
-  * @var string $tableGlossary
-  */
+   * Database table for glossaries
+   * @var string $tableGlossary
+   */
   var $tableGlossary = '';
 
   /**
-  * Database table for glossary translations
-  * @var string $tableGlossaryTran
-  */
+   * Database table for glossary translations
+   * @var string $tableGlossaryTran
+   */
   var $tableGlossaryTrans = '';
 
   /**
-  * Database table for glossary ignore words
-  * @var string $tableGlossaryIgnoreWords
-  */
+   * Database table for glossary ignore words
+   * @var string $tableGlossaryIgnoreWords
+   */
   var $tableGlossaryIgnoreWords = '';
 
   /**
-  * Database table for glossary entries
-  * @var string $tableGlossaryEntries
-  */
+   * Database table for glossary entries
+   * @var string $tableGlossaryEntries
+   */
   var $tableGlossaryEntries = '';
 
   /**
-  * Database table for glossary entry translations
-  * @var string $tableGlossaryEntriesTrans
-  */
+   * Database table for glossary entry translations
+   * @var string $tableGlossaryEntriesTrans
+   */
   var $tableGlossaryEntriesTrans = '';
 
   /**
-  * Array of existing glossaries
-  * @var array $glossaries
-  */
+   * Array of existing glossaries
+   * @var array $glossaries
+   */
   var $glossaries = NULL;
 
   /**
-  * Characters which are not allowed in dialog
-  * @var string $nonWordChars as regular expression
-  */
+   * Characters which are not allowed in dialog
+   * @var string $nonWordChars as regular expression
+   */
   var $nonWordChars = '\\x00-\\x26\\x28-\\x2C\\x2E-\\x2F\\x3A-\\x3F\\x5B-\\x5F\\x7B-\\x7F';
 
   /**
-  * Minimum token byte length
-  * @var integer $tokenMinLength
-  */
+   * Minimum token byte length
+   * @var integer $tokenMinLength
+   */
   var $tokenMinLength = 2;
 
+  var $addReferencePageParameters = false;
+
   /**
-  * Constructor, set member variables for table names
-  *
-  * @param string $paramName optional, default value 'gl'
-  */
+   * Constructor, set member variables for table names
+   *
+   * @param string $paramName optional, default value 'gl'
+   */
   function __construct($paramName = 'gl') {
     $this->paramName = $paramName;
     $this->tableGlossary = PAPAYA_DB_TABLEPREFIX.'_glossary';
@@ -85,20 +87,20 @@ class base_glossary extends base_db {
   }
 
   /**
-  * Pipe to __construct()
-  *
-  * @param string $paramName optional, default value 'gl'
-  */
+   * Pipe to __construct()
+   *
+   * @param string $paramName optional, default value 'gl'
+   */
   function base_glossary($paramName = 'gl') {
     $this->__construct($paramName);
   }
 
   /**
-  * Fetches data of glossaries from database
-  *
-  * @param integer $lngId selected id of language translations
-  * @return boolean load status
-  */
+   * Fetches data of glossaries from database
+   *
+   * @param integer $lngId selected id of language translations
+   * @return boolean load status
+   */
   function loadGlossaries($lngId) {
     unset($this->glossaries);
     $sql = 'SELECT g.glossary_id, g.lng_id, g.glossary_title, g.glossary_text,
@@ -115,7 +117,7 @@ class base_glossary extends base_db {
     if ($res = $this->databaseQueryFmt($sql, $params)) {
       while ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)) {
         if ($row['lng_id'] == $lngId ||
-            !isset($this->glossaries[$row['glossary_id']])) {
+          !isset($this->glossaries[$row['glossary_id']])) {
           $this->glossaries[$row['glossary_id']] = $row;
         }
       }
@@ -125,11 +127,11 @@ class base_glossary extends base_db {
   }
 
   /**
-  * Gets all words from a string
-  *
-  * @param string $str input text
-  * @return array with parsed words
-  */
+   * Gets all words from a string
+   *
+   * @param string $str input text
+   * @return array with parsed words
+   */
   function parseTextToWords($lngId, $str) {
     $words = array();
     $tokens = preg_split('~['.$this->nonWordChars.']+~', $str);
@@ -137,21 +139,23 @@ class base_glossary extends base_db {
 
     $checkIgnoreWords = FALSE;
     if (isset($ignoreWords) && is_array($ignoreWords) &&
-        count($ignoreWords) > 0) {
+      count($ignoreWords) > 0) {
       $ignoreWords = array_flip($ignoreWords);
       $checkIgnoreWords = TRUE;
     }
 
     if (is_array($tokens) && count($tokens) > 0) {
       foreach ($tokens as $key => $token) {
-        if (strlen($token) > $this->tokenMinLength &&
-            !array_key_exists($token, $words)) {
+        if (
+          strlen($token) > $this->tokenMinLength &&
+          !array_key_exists($token, $words)
+        ) {
           if (
-              (
-               $checkIgnoreWords &&
-               !array_key_exists(papaya_strings::strtolower($token), $ignoreWords)
-              ) || !$checkIgnoreWords
-             ) {
+            (
+              $checkIgnoreWords &&
+              !array_key_exists(papaya_strings::strtolower($token), $ignoreWords)
+            ) || !$checkIgnoreWords
+          ) {
             $words[$token] = TRUE;
           }
         }
@@ -161,11 +165,11 @@ class base_glossary extends base_db {
   }
 
   /**
-  * Loads ignore words for parse text to words in lower case
-  *
-  * @param integer $lngId current language id
-  * @return mixed array with words to ignore or boolean false
-  */
+   * Loads ignore words for parse text to words in lower case
+   *
+   * @param integer $lngId current language id
+   * @return mixed array with words to ignore or boolean false
+   */
   function loadIgnoreWords($lngId) {
     $ignoreWords = array();
     $sql = "SELECT ignoreword_id, ignoreword
@@ -184,19 +188,19 @@ class base_glossary extends base_db {
   }
 
   /**
-  * Loads all entries for a given word list
-  *
-  * @param array $words words
-  * @param integer $lng language id
-  * @param integer $currentPageId current page id for links
-  * @param integer $targetPageId target page (glossary page) id for links
-  * @param boolean $storedIds store ids or not
-  * @param array $glossaryIds optional array to set glossary filter
-  * @return boolean found something to replace
-  */
-  function loadTermLinksByWordList($words, $lngId, $currentPageId,
-                                   $targetPageId, $storeIds = FALSE,
-                                   $glossaryIds = NULL) {
+   * Loads all entries for a given word list
+   *
+   * @param array $words words
+   * @param integer $lng language id
+   * @param integer $currentPageId current page id for links
+   * @param integer $targetPageId target page (glossary page) id for links
+   * @param boolean $storedIds store ids or not
+   * @param array $glossaryIds optional array to set glossary filter
+   * @return boolean found something to replace
+   */
+  function loadTermLinksByWordList(
+    $words, $lngId, $currentPageId, $targetPageId, $storeIds = FALSE, $glossaryIds = NULL
+  ) {
     unset($this->termLinks);
     if (isset($GLOBALS['PAPAYA_PAGE'])) {
       $glossaryActive = $GLOBALS['PAPAYA_PAGE']->getPageOption('GLOSSARY_ACTIVE');
@@ -208,8 +212,9 @@ class base_glossary extends base_db {
     }
 
     if ($glossaryActive && isset($words) && is_array($words) && count($words) > 0) {
-      if (isset($glossaryIds) && is_array($glossaryIds) &&
-          count($glossaryIds) > 0) {
+      if (
+        isset($glossaryIds) && is_array($glossaryIds) && count($glossaryIds) > 0
+      ) {
         $filterFirstToken = $this->databaseGetSQLCondition('get.glossaryentry_firsttoken', $words);
         $filterGlossaries = $this->databaseGetSQLCondition('ge.glossary_id', $glossaryIds);
         $sql = "SELECT ge.glossaryentry_id, get.glossaryentry_term,
@@ -220,8 +225,11 @@ class base_glossary extends base_db {
                WHERE get.lng_id = '%d'
                  AND $filterGlossaries
                  AND $filterFirstToken";
-         $params = array($this->tableGlossaryEntries,
-           $this->tableGlossaryEntriesTrans, (int)$lngId);
+        $params = array(
+          $this->tableGlossaryEntries,
+          $this->tableGlossaryEntriesTrans,
+          (int)$lngId
+        );
       } else {
         $filter = $this->databaseGetSQLCondition('glossaryentry_firsttoken', $words);
         $sql = "SELECT glossaryentry_id, glossaryentry_term,
@@ -229,7 +237,7 @@ class base_glossary extends base_db {
                 FROM %s
                WHERE lng_id = '%d'
                  AND $filter";
-         $params = array($this->tableGlossaryEntriesTrans, (int)$lngId);
+        $params = array($this->tableGlossaryEntriesTrans, (int)$lngId);
       }
 
       if ($res = $this->databaseQueryFmt($sql, $params, 100)) {
@@ -241,20 +249,26 @@ class base_glossary extends base_db {
           }
         }
         foreach ($rows as $row) {
+          $parameters = array(
+            'entry_id'  => (int)$row['glossaryentry_id']
+          );
+          if ($this->addReferencePageParameters) {
+            $parameters['refpage'] = $currentPageId;
+            $parameters['urlparams'] = empty($_SERVER['QUERY_STRING']) ? '' : $_SERVER['QUERY_STRING'];
+          }
           $this->termLinks[$row['glossaryentry_term']] = sprintf(
             '<a href="%s" class="glossaryTermLink">%s</a>',
-            $this->getWebLink(
-              $targetPageId,
-              '',
-              '',
-              array(
-                'entry_id'  => (int)$row['glossaryentry_id'],
-                'refpage'   => $currentPageId,
-                'urlparams' => @$_SERVER['QUERY_STRING']
-              ),
-              'bab'
+            PapayaUtilStringXml::escapeAttribute(
+              $this->getWebLink(
+                $targetPageId,
+                '',
+                '',
+                $parameters,
+                'bab',
+                $row['glossaryentry_term']
+              )
             ),
-            papaya_strings::escapeHTMLChars($row['glossaryentry_term'])
+            PapayaUtilStringXml::escape($row['glossaryentry_term'])
           );
           if ($storeIds) {
             $this->storedWords[$row['glossaryentry_term']] = $row['glossaryentry_id'];
@@ -270,12 +284,12 @@ class base_glossary extends base_db {
   }
 
   /**
-  * Load glossary entries by specified ids
-  *
-  * @param integer $lngId selected id of language translations
-  * @param mixed $ids optional, default value NULL
-  * @return array loaded entries
-  */
+   * Load glossary entries by specified ids
+   *
+   * @param integer $lngId selected id of language translations
+   * @param mixed $ids optional, default value NULL
+   * @return array loaded entries
+   */
   function getGlossaryEntriesByIds($lngId, $ids = NULL) {
     $result = array();
     if ($ids == NULL && isset($this->storedIds) && is_array($this->storedIds)) {
@@ -300,12 +314,12 @@ class base_glossary extends base_db {
   }
 
   /**
-  * Compares key length of two given array keys
-  *
-  * @param string $key1 first array key
-  * @param string $key2 second array key
-  * @return integer array length or 0
-  */
+   * Compares key length of two given array keys
+   *
+   * @param string $key1 first array key
+   * @param string $key2 second array key
+   * @return integer array length or 0
+   */
   function compareArrayKeyLength($key1, $key2) {
     if (strlen($key1) == strlen($key2)) {
       return 0;
@@ -315,14 +329,15 @@ class base_glossary extends base_db {
   }
 
   /**
-  * Replace glossary words with glossary term links
-  *
-  * @param string $str input string to work with
-  * @return string result or input string
-  */
+   * Replace glossary words with glossary term links
+   *
+   * @param string $str input string to work with
+   * @return string result or input string
+   */
   function replaceGlossaryWords($str) {
-    if (isset($this->termLinks) && is_array($this->termLinks) &&
-        count($this->termLinks) > 0) {
+    if (
+      isset($this->termLinks) && is_array($this->termLinks) && count($this->termLinks) > 0
+    ) {
       $repl = array_keys($this->termLinks);
       $with = array_values($this->termLinks);
 
@@ -377,13 +392,14 @@ class base_glossary extends base_db {
   }
 
   /**
-  * Set stored ids when a buffer matches in term and removes stored words
-  *
-  * @param string $buffer
-  */
+   * Set stored ids when a buffer matches in term and removes stored words
+   *
+   * @param string $buffer
+   */
   function rememberEntriesInString($buffer) {
-    if (isset($this->storedWords) && is_array($this->storedWords) &&
-        count($this->storedWords) > 0) {
+    if (
+      isset($this->storedWords) && is_array($this->storedWords) && count($this->storedWords) > 0
+    ) {
       foreach ($this->storedWords as $term => $id) {
         if (FALSE !== strpos($buffer, $term)) {
           $this->storedIds[] = $id;
@@ -394,4 +410,3 @@ class base_glossary extends base_db {
   }
 
 }
-?>
