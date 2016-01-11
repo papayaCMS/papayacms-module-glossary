@@ -338,9 +338,6 @@ class base_glossary extends base_db {
     if (
       isset($this->termLinks) && is_array($this->termLinks) && count($this->termLinks) > 0
     ) {
-      $repl = array_keys($this->termLinks);
-      $with = array_values($this->termLinks);
-
       $offset = 0;
       $max = strlen($str);
       $next = strpos($str, '<');
@@ -355,7 +352,7 @@ class base_glossary extends base_db {
           $replaceStrings = FALSE;
           if (strlen($buffer) > 0) {
             $this->rememberEntriesInString($buffer);
-            $result .= str_replace($repl, $with, $buffer);
+            $result .= strtr($buffer, $this->termLinks);
           }
           $next = @strpos($str, '>', $offset);
           if ($next !== FALSE) {
@@ -370,7 +367,7 @@ class base_glossary extends base_db {
       if ($replaceStrings && $offset < $max) {
         $buffer = substr($str, $offset);
         $this->rememberEntriesInString($buffer);
-        $result .= str_replace($repl, $with, $buffer);
+        $result .= strtr($buffer, $this->termLinks);
       } else {
         $result .= substr($str, $offset);
       }
