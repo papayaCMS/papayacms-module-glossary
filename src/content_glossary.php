@@ -1,33 +1,33 @@
 <?php
 /**
-* Glossary Content Output
-*
-* @package commercial
-* @subpackage glossary
-* @version $Id: content_glossary.php 5 2014-02-13 15:41:27Z SystemVCS $
-*/
+ * Glossary Content Output
+ *
+ * @package commercial
+ * @subpackage glossary
+ * @version $Id: content_glossary.php 5 2014-02-13 15:41:27Z SystemVCS $
+ */
 
 /**
-* Basic class page module
-*/
+ * Basic class page module
+ */
 require_once(PAPAYA_INCLUDE_PATH.'system/base_content.php');
 
 /**
-* Basic search string parser
-*/
+ * Basic search string parser
+ */
 require_once(PAPAYA_INCLUDE_PATH.'system/base_searchstringparser.php');
 
 /**
-* Basic glossary module
-*/
+ * Basic glossary module
+ */
 require_once(dirname(__FILE__).'/base_glossary.php');
 
 /**
-* Glossary Content Output
-*
-* @package commercial
-* @subpackage glossary
-*/
+ * Glossary Content Output
+ *
+ * @package commercial
+ * @subpackage glossary
+ */
 class content_glossary extends base_content {
 
   var $editFields = array(
@@ -57,14 +57,14 @@ class content_glossary extends base_content {
   var $loadDetailedLists = FALSE;
 
   /**
-  * GUID of domain connector
-  * @var string
-  */
+   * GUID of domain connector
+   * @var string
+   */
   private $domainConnectorGuid = '8ec0c5995d97c9c3cc9c237ad0dc6c0b';
 
   /**
-  * Initialize parameters
-  */
+   * Initialize parameters
+   */
   function initialize() {
     $this->glossaryObj = new base_glossary();
     $this->glossaryObj->loadGlossaries($this->parentObj->getContentLanguageId());
@@ -81,8 +81,8 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Evaluates submittet form and performs actions
-  */
+   * Evaluates submittet form and performs actions
+   */
   function execute() {
     if (!isset($this->params['offset'])) {
       $this->params['offset'] = 0;
@@ -98,8 +98,8 @@ class content_glossary extends base_content {
       $this->glossaryIds = array(@(int)$this->data['glossary']);
     }
     if (isset($this->params['char']) || isset($this->params['searchfor']) ||
-        (isset($this->params['entry_id']) && $this->params['entry_id'] > 0) ||
-        isset($this->params['mode'])) {
+      (isset($this->params['entry_id']) && $this->params['entry_id'] > 0) ||
+      isset($this->params['mode'])) {
       if (isset($this->params['reset'])) {
         unset($this->params['offset']);
       }
@@ -114,10 +114,10 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Get parsed data
-  *
-  * @return string $result parsed data as XML
-  */
+   * Get parsed data
+   *
+   * @return string $result parsed data as XML
+   */
   function getParsedData($outputParams) {
     $glossaryIds = array();
     $domainConnector = base_pluginloader::getPluginInstance(
@@ -166,10 +166,10 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Generate search form XML (pattern search)
-  *
-  * @return string $result parsed data as XML
-  */
+   * Generate search form XML (pattern search)
+   *
+   * @return string $result parsed data as XML
+   */
   function getSearchForm() {
     $result = '';
     $result .= sprintf(
@@ -282,10 +282,10 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Generate char list for navigation
-  *
-  * @return string $result parsed data as XML
-  */
+   * Generate char list for navigation
+   *
+   * @return string $result parsed data as XML
+   */
   function getCharList() {
     $result = '';
     $result .= '<chars>'.LF;
@@ -351,11 +351,11 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Counts number of entries starting with each letter
-  *
-  * @param integer $lngId language id
-  * @return array $chars array with each letter and number of occurance
-  */
+   * Counts number of entries starting with each letter
+   *
+   * @param integer $lngId language id
+   * @return array $chars array with each letter and number of occurance
+   */
   function getExistingFirstChars($lngId) {
     $chars = array();
     if (isset($this->glossaryIds) && count($this->glossaryIds) > 0) {
@@ -382,10 +382,10 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Calls appropriate search function
-  *
-  * @param boolean $recursion optional, default value FALSE
-  */
+   * Calls appropriate search function
+   *
+   * @param boolean $recursion optional, default value FALSE
+   */
   function loadEntries($recursion = FALSE) {
     $this->entriesAbsCount = 0;
     $this->params['offset'] = (isset($this->params['offset'])) ?
@@ -403,7 +403,7 @@ class content_glossary extends base_content {
         $char, $this->parentObj->getContentLanguageId()
       );
     } elseif (isset($this->params['searchfor']) &&
-              strlen($this->params['searchfor']) > 2) {
+      strlen($this->params['searchfor']) > 2) {
       $this->entriesAbsCount = $this->loadEntriesBySearch(
         $this->params['searchfor'], $this->parentObj->getContentLanguageId()
       );
@@ -421,15 +421,15 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Performs search by character (letter) a term starts with
-  *
-  * @param string $char letter
-  * @param integer $lngId language Id
-  * @return integer absCount() value
-  */
+   * Performs search by character (letter) a term starts with
+   *
+   * @param string $char letter
+   * @param integer $lngId language Id
+   * @return integer absCount() value
+   */
   function loadEntriesByChar($char, $lngId) {
     $firstCharQuery = ' AND '.$this->glossaryObj->databaseGetSQLCondition(
-      'SUBSTR(glossaryentry_normalized, 1, 1)', $char);
+        'SUBSTR(glossaryentry_normalized, 1, 1)', $char);
     $glossaryFilter = $this->glossaryObj->databaseGetSQLCondition(
       'ge.glossary_id',
       $this->glossaryIds
@@ -455,7 +455,7 @@ class content_glossary extends base_content {
       $lngId
     );
     if ($res = $this->glossaryObj->databaseQueryFmt(
-        $sql, $condition, $this->data['steps'], $this->params['offset'])) {
+      $sql, $condition, $this->data['steps'], $this->params['offset'])) {
       while ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)) {
         $this->glossaryEntries[$row['glossaryentry_id']] = $row;
       }
@@ -464,11 +464,11 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Performs search by pattern (search string)
-  *
-  * @param string $searchFor search string
-  * @param integer $lngId language Id
-  */
+   * Performs search by pattern (search string)
+   *
+   * @param string $searchFor search string
+   * @param integer $lngId language Id
+   */
   function loadEntriesBySearch($searchFor, $lngId) {
     $parser = new searchstringparser;
     $searchFields = array('get.glossaryentry_term',
@@ -503,7 +503,7 @@ class content_glossary extends base_content {
     );
 
     if ($res = $this->glossaryObj->databaseQueryFmt(
-        $sql, $params, $this->data['steps'], $this->params['offset'])) {
+      $sql, $params, $this->data['steps'], $this->params['offset'])) {
       while ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)) {
         $this->glossaryEntries[$row['glossaryentry_id']] = $row;
       }
@@ -512,12 +512,12 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Fetchs glossaryentries by Id
-  *
-  * @param integer $id
-  * @param integer $lngId language Id
-  * @return integer 0 or 1
-  */
+   * Fetchs glossaryentries by Id
+   *
+   * @param integer $id
+   * @param integer $lngId language Id
+   * @return integer 0 or 1
+   */
   function loadEntriesById($id, $lngId) {
     $sql = "SELECT ge.glossary_id, get.glossaryentry_id,
                    get.glossaryentry_term, get.glossaryentry_normalized,
@@ -537,7 +537,7 @@ class content_glossary extends base_content {
       $lngId, $id
     );
     if ($res = $this->glossaryObj->databaseQueryFmt(
-        $sql, $condition, $this->data['steps'], $this->params['offset'])) {
+      $sql, $condition, $this->data['steps'], $this->params['offset'])) {
       if ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)) {
 
         $this->data['glossary_words'] = explode(
@@ -570,8 +570,10 @@ class content_glossary extends base_content {
           $this->glossaryObj->tableGlossaryEntries,
           $this->glossaryObj->tableGlossaryEntriesTrans, $id
         );
-        if ($res = $this->glossaryObj->databaseQueryFmt(
-            $sql, $condition, $this->data['steps'], $this->params['offset'])) {
+        $res = $this->glossaryObj->databaseQueryFmt(
+          $sql, $condition, $this->data['steps'], $this->params['offset']
+        );
+        if ($res) {
           while ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)) {
             $this->glossaryEntries[$row['glossaryentry_id']]['lng_ids'][$row['lng_id']] =
               $row['glossaryentry_term'];
@@ -584,12 +586,12 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Fetchs glossaryentries alphabetically
-  *
-  * @param string $mode mode can be 'abc' for paging or 'flat' for all on one page
-  * @param integer $lngId language Id
-  * @return integer absolute count of entries
-  */
+   * Fetchs glossaryentries alphabetically
+   *
+   * @param string $mode mode can be 'abc' for paging or 'flat' for all on one page
+   * @param integer $lngId language Id
+   * @return integer absolute count of entries
+   */
   function loadEntriesList($mode, $lngId) {
     $this->glossaryEntries = array();
     if (!@$this->data['steps'] > 0) {
@@ -638,16 +640,16 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Generates XML for glossary entries
-  * (filtered by search or a-z) following state of page navigation
-  *
-  * @param integer $selectedLngId selected language Id
-  * @return string $result XML for glossaryentries
-  */
+   * Generates XML for glossary entries
+   * (filtered by search or a-z) following state of page navigation
+   *
+   * @param integer $selectedLngId selected language Id
+   * @return string $result XML for glossaryentries
+   */
   function getGlossaryEntries($selectedLngId) {
     $result = '';
     if (isset($this->glossaryEntries) && is_array($this->glossaryEntries) &&
-        count($this->glossaryEntries) > 0) {
+      count($this->glossaryEntries) > 0) {
       $showContent = 'no';
       if (isset($this->params['entry_id']) && $this->params['entry_id'] > 0) {
         $showContent = 'yes';
@@ -668,8 +670,10 @@ class content_glossary extends base_content {
         $i++;
         $glossaryName = $this->glossaries[$entry['glossary_id']]['glossary_title'];
         $content = '';
-        if (isset($entry['glossaryentry_explanation']) &&
-            $entry['glossaryentry_explanation'] != '') {
+        if (
+          isset($entry['glossaryentry_explanation']) &&
+          $entry['glossaryentry_explanation'] != ''
+        ) {
           $content .= sprintf(
             '<explanation>%s</explanation>' . LF,
             $this->getXHTMLString(
@@ -678,31 +682,38 @@ class content_glossary extends base_content {
             )
           );
         }
-        if (isset($entry['glossaryentry_links']) &&
-            $entry['glossaryentry_links'] != '') {
+        if (
+          isset($entry['glossaryentry_links']) &&
+          $entry['glossaryentry_links'] != ''
+        ) {
           $content .= sprintf(
             '<links>%s</links>' . LF,
             $this->getLinksXML($entry['glossaryentry_links'])
           );
         }
-        if (isset($entry['glossaryentry_source']) &&
-            $entry['glossaryentry_source'] != '') {
+        if (
+          isset($entry['glossaryentry_source']) &&
+          $entry['glossaryentry_source'] != ''
+        ) {
           $content .= sprintf(
             '<source>%s</source>' . LF,
             $this->getXHTMLString($entry['glossaryentry_source'])
           );
         }
-        if (isset($entry['lng_ids']) && is_array($entry['lng_ids']) &&
-            count($entry['lng_ids']) > 0) {
+        if (
+          isset($entry['lng_ids']) &&
+          is_array($entry['lng_ids']) &&
+          count($entry['lng_ids']) > 0
+        ) {
           $content .= '<translations>'.LF;
           $defaultLink = $this->params;
           $defaultLink['entry_id'] = $id;
 
           if ($this->params['offset'] > 0) {
             $linkParams['search_offset'] = $this->params['offset'];
+            $defaultLink['search_offset'] = $this->params['offset'];
           }
 
-          $defaultLink['search_offset'] = $this->params['offset'];
           unset($defaultLink['offset']);
           foreach ($entry['lng_ids'] as $lngId => $title) {
             if (isset($this->params['show_lng'])) {
@@ -716,18 +727,18 @@ class content_glossary extends base_content {
               PapayaUtilStringXml::escapeAttribute(
                 $this->getWebLink(
                   NULL,
+                  $this->papaya()->languages[$lngId]['identifier'],
                   NULL,
-                  NULL,
-                  array_merge($defaultLink, array('show_lng' => $lngId)),
+                  $defaultLink,
                   $this->paramName,
-                  $this->parentObj->topic['TRANSLATION']['topic_title']
+                  $title ?: $this->parentObj->topic['TRANSLATION']['topic_title']
                 )
               ),
               PapayaUtilStringXml::escapeAttribute(
-                $this->lngSelect->languages[$lngId]['lng_short']
+                $this->papaya()->languages[$lngId]['code']
               ),
               PapayaUtilStringXml::escapeAttribute(
-                $this->lngSelect->languages[$lngId]['lng_title']
+                $this->papaya()->languages[$lngId]['title']
               ),
               $selected,
               PapayaUtilStringXml::escapeAttribute(
@@ -803,8 +814,11 @@ class content_glossary extends base_content {
       if (!empty($oldChar)) {
         $result .= '</charsection>';
       }
-      if (isset($displayedEntries) && is_array($displayedEntries) &&
-          count($displayedEntries) > 0) {
+      if (
+        isset($displayedEntries) &&
+        is_array($displayedEntries) &&
+        count($displayedEntries) > 0
+      ) {
         $lngId = (isset($this->params['show_lng']))
           ? $this->params['show_lng'] : $this->parentObj->getContentLanguageId();
       }
@@ -814,15 +828,15 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Generates XML link tags from string
-  *
-  * Syntax of $dataStr (one link each line)
-  *   LINKTEXT=http://www.link.org
-  *   http://www.link.org
-  *
-  * @param string $dataStr string to generate links from
-  * @return string $result XML string formed <link href="http://www.link.org" title="linktext" />
-  */
+   * Generates XML link tags from string
+   *
+   * Syntax of $dataStr (one link each line)
+   *   LINKTEXT=http://www.link.org
+   *   http://www.link.org
+   *
+   * @param string $dataStr string to generate links from
+   * @return string $result XML string formed <link href="http://www.link.org" title="linktext" />
+   */
   function getLinksXML($dataStr) {
     $result = '';
     if (trim($dataStr) != '') {
@@ -855,10 +869,10 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Generates page navigation
-  *
-  * @return string $result XML string for navigation
-  */
+   * Generates page navigation
+   *
+   * @return string $result XML string for navigation
+   */
   function getPageNavigation() {
     if ($this->data['steps'] < 1) {
       $this->data['steps'] = 30;
@@ -946,8 +960,9 @@ class content_glossary extends base_content {
             )
           );
         }
-        if (($this->params['offset'] + $this->data['steps']) <
-              $this->entriesAbsCount) {
+        if (
+          ($this->params['offset'] + $this->data['steps']) < $this->entriesAbsCount
+        ) {
           $linkParams['offset'] = $this->params['offset'] + $this->data['steps'];
           $result .= sprintf(
             '<next href="%s" />',
@@ -997,7 +1012,8 @@ class content_glossary extends base_content {
             )
           );
           $current = floor(
-            (int)$this->params['offset'] / ($this->data['steps'])) + 1;
+              (int)$this->params['offset'] / ($this->data['steps'])
+            ) + 1;
           $linkParams['offset'] = '';
           $result .= sprintf(
             '<page current="%d" total="%d" step="%d" href="%s" />',
@@ -1034,15 +1050,19 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Callback function to generate combo for existing glossaries
-  *
-  * @return string $result xml
-  */
+   * Callback function to generate combo for existing glossaries
+   *
+   * @return string $result xml
+   */
   function callbackGlossaryCombo() {
     $result = '';
-    if (isset($this->data['all']) && ((int)$this->data['all'] == 0) &&
-        isset($this->glossaries) && is_array($this->glossaries) &&
-        (count($this->glossaries) > 0)) {
+    if (
+      isset($this->data['all']) &&
+      ((int)$this->data['all'] == 0) &&
+      isset($this->glossaries) &&
+      is_array($this->glossaries) &&
+      (count($this->glossaries) > 0)
+    ) {
       $result .= sprintf(
         '<select name="%s[glossary]" class="dialogSelect dialogScale">',
         PapayaUtilStringXml::escapeAttribute($this->paramName)
@@ -1065,10 +1085,10 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Get parsed teaser title and text
-  *
-  * @return string $result xml
-  */
+   * Get parsed teaser title and text
+   *
+   * @return string $result xml
+   */
   function getParsedTeaser() {
     $result = '';
     $result .= sprintf(
@@ -1083,8 +1103,8 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Logs glossary search words or referer
-  */
+   * Logs glossary search words or referer
+   */
   function logStatistic() {
     if (isset($this->params['entry_id']) && $this->params['entry_id'] > 0) {
       $data = array(
@@ -1101,12 +1121,12 @@ class content_glossary extends base_content {
   }
 
   /**
-  * Get topic title of referer
-  *
-  * @param integer $topicId id of referer topic
-  * @param integer $lngId selected language id
-  * @return mixed array with topic title or boolean false
-  */
+   * Get topic title of referer
+   *
+   * @param integer $topicId id of referer topic
+   * @param integer $lngId selected language id
+   * @return mixed array with topic title or boolean false
+   */
   function getRefererTopic($topicId, $lngId) {
     $sql = "SELECT topic_title
               FROM %s
@@ -1118,4 +1138,3 @@ class content_glossary extends base_content {
     return FALSE;
   }
 }
-?>
