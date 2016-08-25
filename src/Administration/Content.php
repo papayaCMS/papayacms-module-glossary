@@ -14,13 +14,13 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
    * @return PapayaUiControlCommandController
    */
   protected function _createCommands($name = 'mode', $default = 'terms') {
-    $commands = parent::_createCommands($name, $default);
-    $commands->parameterGroup($this->parameterGroup());
-    $commands['terms'] = new GlossaryAdministrationContentTerms();
-    $commands['glossaries'] = $subCommands = new PapayaUiControlCommandController('cmd', 'edit');
-    $subcommands['edit'] = new GlossaryAdministrationContentGlossaryChange();
-    $commands['ignore-words'] = new GlossaryAdministrationContentIgnores();
-    return $commands;
+    $modes = parent::_createCommands($name, $default);
+    $modes->parameterGroup($this->parameterGroup());
+    $modes['terms'] = new GlossaryAdministrationContentTerms();
+    $modes['glossaries'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
+    $commands['change'] = new GlossaryAdministrationContentGlossaryChange();
+    $modes['ignore-words'] = new GlossaryAdministrationContentIgnores();
+    return $modes;
   }
 
   /**
