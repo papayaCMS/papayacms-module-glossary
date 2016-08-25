@@ -46,34 +46,26 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
    * @return PapayaUiDialogDatabaseSave
    */
   public function createDialog() {
-    /** @var PapayaAdministrationPagesDependencyChanger $changer */
-    $dialog = new PapayaUiDialogDatabaseSave($record);
+    $translation = $this->translation();
+    $dialog = new PapayaUiDialogDatabaseSave($translation);
     $dialog->papaya($this->papaya());
 
-    $dialog->caption = new PapayaUiStringTranslated('Page dependency');
-    $dialog->parameterGroup($this->owner()->parameterGroup);
+    $dialog->caption = new PapayaUiStringTranslated('Glossary');
+    $dialog->parameterGroup($this->owner()->parameterGroup());
     $dialog->hiddenFields->merge(
       array(
         'mode' => 'glossaries',
-        'cmd' => 'edit',
-        'id' => $record['id']
+        'cmd' => 'change',
+        'id' => $translation['id'],
+        'language_id' => $translation['language_id']
       )
     );
-    $dialog->fields[] = $field = new PapayaUiDialogFieldInputPage(
-      new PapayaUiStringTranslated('Origin page'), 'origin_id', NULL, TRUE
+    $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
+      new PapayaUiStringTranslated('Title'), 'title'
     );
-    $originIdField->setHint(
-      new PapayaUiStringTranslated(
-        'The origin id must be a valid page, that is not a dependency itself.'
-      )
-    );
-    $dialog->fields[] = $synchronizationField = new PapayaUiDialogFieldSelectBitmask(
-      new PapayaUiStringTranslated('Synchronization'),
-      'synchronization',
-      $synchronizations->getList()
-    );
-    $dialog->fields[] = new PapayaUiDialogFieldTextarea(
-      new PapayaUiStringTranslated('Note'), 'note', 8, ''
+    $field->setMandatory(TRUE);
+    $dialog->fields[] = $field = new PapayaUiDialogFieldTextareaRichtext(
+      new PapayaUiStringTranslated('Text'), 'text'
     );
     $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Save'));
 

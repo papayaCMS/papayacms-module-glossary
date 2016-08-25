@@ -12,7 +12,7 @@ class GlossaryContentGlossaries extends PapayaDatabaseRecordsLazy {
   protected $_orderByProperties = ['id' => PapayaDatabaseInterfaceOrder::ASCENDING];
 
   protected $_tableGlossaries = GlossaryContentTables::TABLE_GLOSSARIES;
-  protected $_tableGlossaryTranslations = GlossaryContentTables::TABLE_GLOSSARIES;
+  protected $_tableGlossaryTranslations = GlossaryContentTables::TABLE_GLOSSARY_TRANSLATIONS;
 
   /**
    * Load pages defined by filter conditions.
@@ -32,7 +32,7 @@ class GlossaryContentGlossaries extends PapayaDatabaseRecordsLazy {
     }
     $sql = "SELECT g.glossary_id, gt.glossary_title
               FROM %s AS g
-              LEFT JOIN %s AS gt ON (gt.glossary_id = g.glossary_id AND gt.language_id = '%d')
+              LEFT JOIN %s AS gt ON (gt.glossary_id = g.glossary_id AND gt.lng_id = '%d')
                    ".$this->_compileCondition($filter)."
                    ".$this->_compileOrderBy();
     $parameters = array(

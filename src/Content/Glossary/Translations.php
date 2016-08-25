@@ -4,7 +4,7 @@ class GlossaryContentGlossaryTranslations extends PapayaDatabaseRecordsLazy {
 
   protected $_fields = [
     'id' => 'glossary_id',
-    'language_id' => 'language_id',
+    'language_id' => 'lng_id',
     'title' => 'glossary_title',
     'modified' => 'glossary_modified'
   ];
