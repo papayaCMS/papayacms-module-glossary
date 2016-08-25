@@ -105,7 +105,7 @@ class papaya_glossary extends base_glossary {
   */
   function execute() {
     include_once(PAPAYA_INCLUDE_PATH.'system/base_language_select.php');
-    $this->lngSelect = &base_language_select::getInstance();
+    $this->lngSelect = base_language_select::getInstance();
 
     if (isset($this->params['cmd']) && $this->params['cmd'] == 'fix_normalized') {
       if ($this->module->hasPerm(5)) {
@@ -676,7 +676,7 @@ class papaya_glossary extends base_glossary {
   */
   function getButtonXML() {
     include_once(PAPAYA_INCLUDE_PATH.'system/base_btnbuilder.php');
-    $this->menubar = &new base_btnbuilder;
+    $this->menubar = new base_btnbuilder;
     $this->menubar->images = $this->images;
 
     if (isset($this->menubar) && is_object($this->menubar)) {
@@ -818,7 +818,7 @@ class papaya_glossary extends base_glossary {
       );
 
       include_once(PAPAYA_INCLUDE_PATH.'system/base_dialog.php');
-      $this->ignoreWordDialog = &new base_dialog($this, $this->paramName, $fields, $data, $hidden);
+      $this->ignoreWordDialog = new base_dialog($this, $this->paramName, $fields, $data, $hidden);
       $this->ignoreWordDialog->dialogTitle = $this->_gt($title);
       $this->ignoreWordDialog->buttonTitle = $btnTitle;
       $this->ignoreWordDialog->baseLink = $this->baseLink;
@@ -849,7 +849,7 @@ class papaya_glossary extends base_glossary {
     $msg = sprintf($this->_gt('Delete word?'));
 
     include_once(PAPAYA_INCLUDE_PATH.'system/base_msgdialog.php');
-    $dialog = &new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
+    $dialog = new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
     $dialog->buttonTitle = 'Delete';
     return $dialog->getMsgDialog();
   }
@@ -1239,7 +1239,6 @@ class papaya_glossary extends base_glossary {
     } else {
       $newId = $this->params['glossary_id'];
     }
-
     if (isset($newId) && $newId !== FALSE) {
       $data = array(
         'glossary_id' => $newId,
@@ -1247,7 +1246,7 @@ class papaya_glossary extends base_glossary {
         'glossary_title' => $this->params['glossary_title'],
         'glossary_text'  => $this->params['glossary_text']
       );
-      if ($this->databaseInsertRecord($this->tableGlossaryTrans, NULL, $data)) {
+      if (FALSE !== $this->databaseInsertRecord($this->tableGlossaryTrans, NULL, $data)) {
         $this->loadGlossaries($this->lngSelect->currentLanguageId);
         return TRUE;
       }
@@ -1630,7 +1629,7 @@ class papaya_glossary extends base_glossary {
     );
     // include dialog object
     include_once(PAPAYA_INCLUDE_PATH.'system/base_msgdialog.php');
-    $dialog = &new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
+    $dialog = new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
     $dialog->buttonTitle = 'Delete';
     return $dialog->getMsgDialog();
   }
@@ -1665,7 +1664,7 @@ class papaya_glossary extends base_glossary {
         'glossary_text' => array('Text', 'isNoHTML', TRUE, 'textarea', 10, '')
       );
       include_once(PAPAYA_INCLUDE_PATH.'system/base_dialog.php');
-      $this->addGlossaryDialog = &new base_dialog($this, $this->paramName, $fields, $data, $hidden);
+      $this->addGlossaryDialog = new base_dialog($this, $this->paramName, $fields, $data, $hidden);
       $this->addGlossaryDialog->dialogTitle = $this->_gt('Add glossary');
       $this->addGlossaryDialog->buttonTitle = 'Add';
       $this->addGlossaryDialog->inputFieldSize = 'x-large';
@@ -1693,7 +1692,7 @@ class papaya_glossary extends base_glossary {
     );
 
     include_once(PAPAYA_INCLUDE_PATH.'system/base_msgdialog.php');
-    $dialog = &new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
+    $dialog = new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
     $dialog->buttonTitle = 'Add';
     return $dialog->getMsgDialog();
   }
@@ -1730,7 +1729,7 @@ class papaya_glossary extends base_glossary {
         'glossary_text' => array('Text', 'isNoHTML', TRUE, 'textarea', 10, '')
       );
       include_once(PAPAYA_INCLUDE_PATH.'system/base_dialog.php');
-      $this->editGlossaryDialog = &new base_dialog(
+      $this->editGlossaryDialog = new base_dialog(
         $this, $this->paramName, $fields, $data, $hidden
       );
       include_once(PAPAYA_INCLUDE_PATH.'system/base_dialog.php');
@@ -1759,7 +1758,7 @@ class papaya_glossary extends base_glossary {
     );
 
     include_once(PAPAYA_INCLUDE_PATH.'system/base_msgdialog.php');
-    $dialog = &new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
+    $dialog = new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
     $dialog->buttonTitle = 'Delete';
     return $dialog->getMsgDialog();
   }
@@ -1812,7 +1811,7 @@ class papaya_glossary extends base_glossary {
       );
 
       include_once(PAPAYA_INCLUDE_PATH.'system/base_dialog.php');
-      $this->addEntryDialog = &new base_dialog($this, $this->paramName, $fields, $data, $hidden);
+      $this->addEntryDialog = new base_dialog($this, $this->paramName, $fields, $data, $hidden);
       $this->addEntryDialog->expandPapayaTags = TRUE;
       $this->addEntryDialog->dialogTitle = $this->_gt('Add entry');
       $this->addEntryDialog->buttonTitle = 'Add';
@@ -1842,7 +1841,7 @@ class papaya_glossary extends base_glossary {
     );
 
     include_once(PAPAYA_INCLUDE_PATH.'system/base_msgdialog.php');
-    $dialog = &new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
+    $dialog = new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
     $dialog->buttonTitle = 'Add';
     return $dialog->getMsgDialog();
   }
@@ -1911,7 +1910,7 @@ class papaya_glossary extends base_glossary {
       );
 
       include_once(PAPAYA_INCLUDE_PATH.'system/base_dialog.php');
-      $this->editEntryDialog = &new base_dialog(
+      $this->editEntryDialog = new base_dialog(
         $this, $this->paramName, $fields, $data, $hidden
       );
       $this->editEntryDialog->expandPapayaTags = TRUE;
@@ -1941,7 +1940,7 @@ class papaya_glossary extends base_glossary {
     );
 
     include_once(PAPAYA_INCLUDE_PATH.'system/base_msgdialog.php');
-    $dialog = &new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
+    $dialog = new base_msgdialog($this, $this->paramName, $hidden, $msg, 'question');
     $dialog->buttonTitle = 'Delete';
     return $dialog->getMsgDialog();
   }

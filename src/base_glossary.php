@@ -108,7 +108,7 @@ class base_glossary extends base_db {
             FROM %s AS g
             LEFT OUTER JOIN %s AS gm
               ON (g.glossary_id = gm.glossary_id AND gm.lng_id = %d)
-            ORDER BY glossary_title ASC';
+            ORDER BY g.glossary_title ASC';
     $params = array(
       $this->tableGlossaryTrans, $this->tableGlossaryTrans,
       (int)PAPAYA_CONTENT_LANGUAGE
