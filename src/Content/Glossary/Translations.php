@@ -12,4 +12,6 @@ class GlossaryContentGlossaryTranslations extends PapayaDatabaseRecordsLazy {
   protected $_orderByProperties = ['title'];
 
   protected $_identifierProperties = ['id', 'language_id'];
+
+  protected $_tableName = GlossaryContentTables::TABLE_GLOSSARY_TRANSLATIONS;
 }

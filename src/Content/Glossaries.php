@@ -11,6 +11,9 @@ class GlossaryContentGlossaries extends PapayaDatabaseRecordsLazy {
 
   protected $_orderByProperties = ['id' => PapayaDatabaseInterfaceOrder::ASCENDING];
 
+  protected $_tableGlossaries = GlossaryContentTables::TABLE_GLOSSARIES;
+  protected $_tableGlossaryTranslations = GlossaryContentTables::TABLE_GLOSSARIES;
+
   /**
    * Load pages defined by filter conditions.
    *
