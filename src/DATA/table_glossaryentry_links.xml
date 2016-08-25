@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="ISO-8859-1" ?>
-<table name="glossaryentries" prefix="yes">
+<table name="glossaryentry_links" prefix="yes">
   <fields>
     <field name="glossaryentry_id" type="integer" size="8" null="no" autoinc="yes"/>
     <field name="glossary_id" type="integer" size="4" null="no"/>
   </fields>
   <keys>
     <primary-key>
+      <field>glossary_id</field>
       <field>glossaryentry_id</field>
     </primary-key>
-    <key name="glossary_id">
-      <field>glossary_id</field>
-    </key>
   </keys>
 </table>
