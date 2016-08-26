@@ -4,14 +4,14 @@ class GlossaryContentGlossaries extends PapayaDatabaseRecordsLazy {
 
   protected $_fields = [
     'id' => 'g.glossary_id',
-    'language_id' => 'gt.lng__id',
+    'language_id' => 'gt.lng_id',
     'title' => 'gt.glossary_title',
     'title_fallback' => 'fallback_title'
   ];
 
   protected $_identifierProperties = ['id'];
 
-  protected $_orderByProperties = ['id' => PapayaDatabaseInterfaceOrder::ASCENDING];
+  protected $_orderByProperties = ['title' => PapayaDatabaseInterfaceOrder::ASCENDING];
 
   protected $_tableGlossaries = GlossaryContentTables::TABLE_GLOSSARIES;
   protected $_tableGlossaryTranslations = GlossaryContentTables::TABLE_GLOSSARY_TRANSLATIONS;
@@ -35,7 +35,7 @@ class GlossaryContentGlossaries extends PapayaDatabaseRecordsLazy {
     $sql = "SELECT g.glossary_id, gt.glossary_title, gt.lng_id, gtf.glossary_title fallback_title
               FROM %s AS g
               LEFT JOIN %s AS gt ON (gt.glossary_id = g.glossary_id AND gt.lng_id = '%d')
-              LEFT JOIN %s AS gtf ON (gt.glossary_id = g.glossary_id)
+              LEFT JOIN %s AS gtf ON (gtf.glossary_id = g.glossary_id)
                    ".$this->_compileCondition($filter)."
                    ".$this->_compileOrderBy();
     $parameters = array(

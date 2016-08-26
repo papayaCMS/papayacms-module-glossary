@@ -60,8 +60,10 @@ class GlossaryAdministrationNavigationGlossaries extends PapayaUiControlCommand 
    * @return null|PapayaUiListviewItem
    */
   public function callbackCreateItem($builder, $items, $element, $index) {
-    $title = empty($element['title']) ? '['.$element['title_fallback'].']': $element['title'];
-    $items[] = $item = new PapayaUiListviewItem('items-folder', $title);
+    $items[] = $item = new PapayaUiListviewItem('items-folder', $element['title']);
+    if (empty($element['title'])) {
+      $item->caption = '['.$element['title_fallback'].']';
+    }
     $item->papaya($this->papaya());
     $item->reference->setParameters(
       array(
@@ -71,8 +73,11 @@ class GlossaryAdministrationNavigationGlossaries extends PapayaUiControlCommand 
       ),
       $this->parameterGroup()
     );
-    $item->selected = (
+    $item->selected = $selected = (
       $this->parameters()->get('glossary_id') == $element['id']
     );
+    if ($selected) {
+      $item->image = 'status-folder-open';
+    }
   }
 }
