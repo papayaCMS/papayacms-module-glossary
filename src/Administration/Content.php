@@ -51,7 +51,7 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     case 'glossaries' :
       $toolbar->elements[] = $button = new PapayaUiToolbarButton();
       $button->reference->setParameters(
-        [ 'mode' => 'glossaries', 'cmd' => 'add'],
+        [ 'mode' => 'glossaries', 'cmd' => 'change', 'glossary_id' => 0],
         $this->parameterGroup()
       );
       $button->caption = new PapayaUiStringTranslated('Add glossary');
@@ -60,7 +60,7 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     case 'ignore-words' :
       $toolbar->elements[] = $button = new PapayaUiToolbarButton();
       $button->reference->setParameters(
-        [ 'mode' => 'ignore-words', 'cmd' => 'add'],
+        [ 'mode' => 'ignore-words', 'cmd' => 'change'],
         $this->parameterGroup()
       );
       $button->caption = new PapayaUiStringTranslated('Add glossary');
@@ -70,7 +70,7 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     default :
       $toolbar->elements[] = $button = new PapayaUiToolbarButton();
       $button->reference->setParameters(
-        [ 'mode' => 'terms', 'cmd' => 'add'],
+        [ 'mode' => 'terms', 'cmd' => 'change'],
         $this->parameterGroup()
       );
       $button->caption = new PapayaUiStringTranslated('Add term');

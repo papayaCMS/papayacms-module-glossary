@@ -42,4 +42,12 @@ class GlossaryContentGlossaries extends PapayaDatabaseRecordsLazy {
     );
     return $this->_loadRecords($sql, $parameters, $limit, $offset, 'id');
   }
+
+  public function add(array $data = array()) {
+    $databaseAccess = $this->getDatabaseAccess();
+    return $databaseAccess->insertRecord(
+      $databaseAccess->getTableName($this->_tableGlossaries),
+      $this->mapping()->mapPropertiesToFields($data, FALSE)
+    );
+  }
 }

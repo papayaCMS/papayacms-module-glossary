@@ -29,6 +29,10 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
    * @var GlossaryContentGlossaryTranslation
    */
   private $_translation;
+  /**
+   * @var GlossaryContentGlossary
+   */
+  private $_glossary;
 
   public function translation(GlossaryContentGlossaryTranslation $translation = NULL) {
     if (isset($translation)) {
@@ -39,6 +43,15 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
     }
     return $this->_translation;
   }
+  public function glossary(GlossaryContentGlossaryTranslation $glossary = NULL) {
+    if (isset($glossary)) {
+      $this->_glossary = $glossary;
+    } elseif (NULL === $this->_translation) {
+      $this->_glossary = new GlossaryContentGlossary();
+      $this->_glossary->papaya($this->papaya());
+    }
+    return $this->_glossary;
+  }
 
   /**
    * Create the add/edit dialog and assign callbacks.
@@ -46,18 +59,30 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
    * @return PapayaUiDialogDatabaseSave
    */
   public function createDialog() {
+    $glossary = $this->glossary();
     $translation = $this->translation();
+    $glossaryId = $this->parameters()->get(
+      'glossary_id', NULL, new PapayaFilterInteger(1)
+    );
+    $filter = [
+      'id' => $glossaryId,
+      'language_id' => $this->papaya()->administrationLanguage->id
+    ];
+    $loaded = $glossary->load(['id' => $glossaryId]);
+    if (!$translation->load($filter)) {
+      $translation->key()->assign($filter);
+    }
     $dialog = new PapayaUiDialogDatabaseSave($translation);
     $dialog->papaya($this->papaya());
-
-    $dialog->caption = new PapayaUiStringTranslated('Glossary');
+    $dialog->caption = new PapayaUiStringTranslated($loaded ? 'Edit Glossary' : 'Add Glossary');
+    $dialog->image = $this->papaya()->administrationLanguage->image;
     $dialog->parameterGroup($this->owner()->parameterGroup());
     $dialog->hiddenFields->merge(
       array(
         'mode' => 'glossaries',
         'cmd' => 'change',
-        'id' => $translation['id'],
-        'language_id' => $translation['language_id']
+        'glossary_id' => $this->parameters()->get('glossary_id', $translation['id']),
+        'language_id' => $this->papaya()->administrationLanguage->id
       )
     );
     $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
@@ -68,6 +93,22 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
       new PapayaUiStringTranslated('Text'), 'text'
     );
     $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Save'));
+
+    $dialog->callbacks()->onBeforeSave = function() use ($translation) {
+      $glossaryId = $translation['id'];
+      if ($glossaryId < 1) {
+        $glossary = new GlossaryContentGlossary();
+        $glossary->save();
+        $glossaryId = $translation['id'] = $glossary['id'];
+        $translation->key()->assign(['id' => $glossaryId]);
+        $this->parameters()->set('glossary_id', $glossaryId);
+        $this->resetAfterSuccess(TRUE);
+      }
+      if ($glossaryId < 1) {
+        return FALSE;
+      }
+      return TRUE;
+    };
 
     $this->callbacks()->onExecuteSuccessful = array($this, 'handleExecutionSuccess');
     $this->callbacks()->onExecuteFailed = array($this, 'dispatchErrorMessage');
