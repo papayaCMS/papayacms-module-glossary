@@ -43,10 +43,11 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
     }
     return $this->_translation;
   }
+
   public function glossary(GlossaryContentGlossaryTranslation $glossary = NULL) {
     if (isset($glossary)) {
       $this->_glossary = $glossary;
-    } elseif (NULL === $this->_translation) {
+    } elseif (NULL === $this->_glossary) {
       $this->_glossary = new GlossaryContentGlossary();
       $this->_glossary->papaya($this->papaya());
     }
