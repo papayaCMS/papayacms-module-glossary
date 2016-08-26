@@ -43,7 +43,7 @@ class GlossaryAdministrationNavigationGlossaries extends PapayaUiControlCommand 
     } elseif (NULL == $this->_glossaries) {
       $this->_glossaries = new GlossaryContentGlossaries();
       $this->_glossaries->papaya($this->papaya());
-      $this->_glossaries->load(
+      $this->_glossaries->activateLazyLoad(
         [
           'language_id' => $this->papaya()->administrationLanguage->id
         ]
