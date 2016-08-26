@@ -19,6 +19,7 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     $modes['terms'] = new GlossaryAdministrationContentTerms();
     $modes['glossaries'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
     $commands['change'] = new GlossaryAdministrationContentGlossaryChange();
+    $commands['delete'] = new GlossaryAdministrationContentGlossaryDelete();
     $modes['ignore-words'] = new GlossaryAdministrationContentIgnores();
     return $modes;
   }
@@ -56,6 +57,15 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
       );
       $button->caption = new PapayaUiStringTranslated('Add glossary');
       $button->image = 'actions-folder-add';
+      if ($glossaryId = $this->parameters()->get('glossary_id', 0, new PapayaFilterInteger(1))) {
+        $toolbar->elements[] = $button = new PapayaUiToolbarButton();
+        $button->reference->setParameters(
+          [ 'mode' => 'glossaries', 'cmd' => 'delete', 'glossary_id' => $glossaryId],
+          $this->parameterGroup()
+        );
+        $button->caption = new PapayaUiStringTranslated('Delete glossary');
+        $button->image = 'actions-folder-delete';
+      }
       break;
     case 'ignore-words' :
       $toolbar->elements[] = $button = new PapayaUiToolbarButton();
