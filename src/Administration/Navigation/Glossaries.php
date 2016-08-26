@@ -60,7 +60,8 @@ class GlossaryAdministrationNavigationGlossaries extends PapayaUiControlCommand 
    * @return null|PapayaUiListviewItem
    */
   public function callbackCreateItem($builder, $items, $element, $index) {
-    $items[] = $item = new PapayaUiListviewItem('items-folder', $element['title']);
+    $title = empty($element['title']) ? '['.$element['title_fallback'].']': $element['title'];
+    $items[] = $item = new PapayaUiListviewItem('items-folder', $title);
     $item->papaya($this->papaya());
     $item->reference->setParameters(
       array(

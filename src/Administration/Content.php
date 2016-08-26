@@ -14,13 +14,21 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
    * @return PapayaUiControlCommandController
    */
   protected function _createCommands($name = 'mode', $default = 'terms') {
+    $moduleId = $this->getPage()->getModuleId();
     $modes = parent::_createCommands($name, $default);
     $modes->parameterGroup($this->parameterGroup());
-    $modes['terms'] = new GlossaryAdministrationContentTerms();
+
+    $modes['terms'] = $commands = new GlossaryAdministrationContentTerms();
+    $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_TERMS]);
+
     $modes['glossaries'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
+    $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_GLOSSARIES]);
     $commands['change'] = new GlossaryAdministrationContentGlossaryChange();
     $commands['delete'] = new GlossaryAdministrationContentGlossaryDelete();
-    $modes['ignore-words'] = new GlossaryAdministrationContentIgnores();
+
+    $modes['ignore-words'] = $commands = new GlossaryAdministrationContentIgnores();
+    $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_IGNORE]);
+
     return $modes;
   }
 
@@ -28,21 +36,34 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
    * @param PapayaUiToolbarSet $toolbar
    */
   protected function _initializeToolbar(PapayaUiToolbarSet $toolbar) {
+    $moduleId = $this->getPage()->getModuleId();
     parent::_initializeToolbar($toolbar);
     $toolbar->elements[] = $select = new PapayaUiToolbarSelectButtons(
       [$this->parameterGroup(), 'mode'],
       [
         'terms' => [
           'caption' => 'Terms',
-          'image' => 'categories-view-list'
+          'image' => 'categories-view-list',
+          'enabled' => $this->papaya()->administrationUser->hasPerm(
+            GlossaryAdministration::PERMISSION_MANAGE_TERMS,
+            $moduleId
+          )
         ],
         'glossaries' => [
           'caption' => 'Glossaries',
-          'image' => 'items-folder'
+          'image' => 'items-folder',
+          'enabled' => $this->papaya()->administrationUser->hasPerm(
+            GlossaryAdministration::PERMISSION_MANAGE_GLOSSARIES,
+            $moduleId
+          )
         ],
         'ignore-words' => [
           'caption' => 'Ignore words',
-          'image' => 'items-page-ignoreword'
+          'image' => 'items-page-ignoreword',
+          'enabled' => $this->papaya()->administrationUser->hasPerm(
+            GlossaryAdministration::PERMISSION_MANAGE_IGNORE,
+            $moduleId
+          )
         ]
       ]
     );

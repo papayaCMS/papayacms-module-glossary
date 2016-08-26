@@ -95,8 +95,7 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
     );
     $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Save'));
 
-    $dialog->callbacks()->onBeforeSave = function() use ($translation) {
-      $glossaryId = $translation['id'];
+    $dialog->callbacks()->onBeforeSave = function() use ($glossaryId, $translation) {
       if ($glossaryId < 1) {
         $glossary = new GlossaryContentGlossary();
         $glossary->save();
