@@ -41,7 +41,7 @@ class edmodule_glossary2 extends base_module {
   var $permissions = array(
     GlossaryAdministration::PERMISSION_MANAGE => 'Manage',
     GlossaryAdministration::PERMISSION_MANAGE_GLOSSARIES => 'Create/Edit glossaries',
-    GlossaryAdministration::PERMISSION_MANAGE_ENTRIES => 'Create/Edit glossary entries',
+    GlossaryAdministration::PERMISSION_MANAGE_TERMS => 'Create/Edit glossary entries',
     GlossaryAdministration::PERMISSION_MANAGE_IGNORE => 'Create/Edit glossary ignorewords'
   );
 
@@ -49,11 +49,7 @@ class edmodule_glossary2 extends base_module {
     if ($this->hasPerm(GlossaryAdministration::PERMISSION_MANAGE, TRUE)) {
       $administration = new GlossaryAdministration(
         $this->layout,
-        [
-          GlossaryAdministration::PERMISSION_MANAGE_GLOSSARIES => $this->hasPerm(GlossaryAdministration::PERMISSION_MANAGE_GLOSSARIES, FALSE),
-          GlossaryAdministration::PERMISSION_MANAGE_ENTRIES => $this->hasPerm(GlossaryAdministration::PERMISSION_MANAGE_ENTRIES, FALSE),
-          GlossaryAdministration::PERMISSION_MANAGE_IGNORE => $this->hasPerm(GlossaryAdministration::PERMISSION_MANAGE_IGNORE, FALSE),
-        ]
+        $this->guid
       );
       $administration->papaya($this->papaya());
       $administration->execute();

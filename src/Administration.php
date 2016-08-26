@@ -4,23 +4,30 @@ class GlossaryAdministration extends PapayaAdministrationPage {
 
   const PERMISSION_MANAGE = 1;
   const PERMISSION_MANAGE_GLOSSARIES = 2;
-  const PERMISSION_MANAGE_ENTRIES = 3;
+  const PERMISSION_MANAGE_TERMS = 3;
   const PERMISSION_MANAGE_IGNORE = 4;
 
   protected $_parameterGroup = 'glossary';
 
-  private $_permissions = [];
+  /**
+   * @var string
+   */
+  private $_moduleId;
 
-  public function __construct(PapayaTemplate $layout, array $permissions) {
+  public function __construct(PapayaTemplate $layout, $moduleId) {
     parent::__construct($layout);
-    $this->_permissions = $permissions;
+    $this->_moduleId = $moduleId;
+  }
+
+  public function getModuleId() {
+    return $this->_moduleId;
   }
 
   protected function createContent() {
-    return new GlossaryAdministrationContent();
+    return new GlossaryAdministrationContent($this);
   }
 
   protected function createNavigation() {
-    return new GlossaryAdministrationNavigation();
+    return new GlossaryAdministrationNavigation($this);
   }
 }
