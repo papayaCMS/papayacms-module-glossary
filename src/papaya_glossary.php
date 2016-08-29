@@ -1160,7 +1160,7 @@ class papaya_glossary extends base_glossary {
                   ON (gem.glossaryentry_id = ge.glossaryentry_id AND
                       gem.lng_id = %d)
                WHERE ge.glossary_id = %d $filter
-               ORDER BY glossaryentry_term";
+               ORDER BY get.glossaryentry_term, main_language_term";
       $params = array($this->tableGlossaryEntries,
         $this->tableGlossaryEntriesTrans, $lngId, $patt,
         $this->tableGlossaryEntriesTrans, (int)PAPAYA_CONTENT_LANGUAGE,
