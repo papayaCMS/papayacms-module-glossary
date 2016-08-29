@@ -26,8 +26,14 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     $commands['change'] = new GlossaryAdministrationContentGlossaryChange();
     $commands['delete'] = new GlossaryAdministrationContentGlossaryDelete();
 
-    $modes['ignore-words'] = $commands = new GlossaryAdministrationContentIgnores();
+    $modes['ignore-words'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
     $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_IGNORE]);
+    $commands['change'] = new GlossaryAdministrationContentIgnores(
+      PapayaUiControlCommandDialogDatabaseRecord::ACTION_SAVE
+    );
+    $commands['delete'] = new GlossaryAdministrationContentIgnores(
+      PapayaUiControlCommandDialogDatabaseRecord::ACTION_DELETE
+    );
 
     return $modes;
   }
@@ -94,8 +100,17 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
         [ 'mode' => 'ignore-words', 'cmd' => 'change'],
         $this->parameterGroup()
       );
-      $button->caption = new PapayaUiStringTranslated('Add glossary');
-      $button->image = 'actions-folder-add';
+      $button->caption = new PapayaUiStringTranslated('Add word');
+      $button->image = 'actions-page-ignoreword-add';
+      if ($wordId = $this->parameters()->get('ignore_word_id', 0, new PapayaFilterInteger(1))) {
+        $toolbar->elements[] = $button = new PapayaUiToolbarButton();
+        $button->reference->setParameters(
+          [ 'mode' => 'ignore_words', 'cmd' => 'delete', 'ignore_word_id' => $wordId],
+          $this->parameterGroup()
+        );
+        $button->caption = new PapayaUiStringTranslated('Delete ignore word');
+        $button->image = 'actions-page-ignoreword-delete';
+      }
       break;
     case 'terms' :
     default :
