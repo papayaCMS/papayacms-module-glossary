@@ -1,6 +1,6 @@
 <?php
 /**
- * Add/save a glossary.
+ * Add/save a glossary term.
  *
  * @copyright 2016 by papaya Software GmbH - All rights reserved.
  * @link http://www.papaya-cms.com/
@@ -18,40 +18,40 @@
  */
 
 /**
- * Add/save a glossary.
+ * Add/save a glossary term.
  *
  * @package Papaya-Library
  * @subpackage Administration
  */
-class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommandDialog {
+class GlossaryAdministrationContentTermChange extends PapayaUiControlCommandDialog {
 
   /**
-   * @var GlossaryContentGlossaryTranslation
+   * @var GlossaryContentTermTranslation
    */
   private $_translation;
   /**
-   * @var GlossaryContentGlossary
+   * @var GlossaryContentTerm
    */
-  private $_glossary;
+  private $_term;
 
-  public function translation(GlossaryContentGlossaryTranslation $translation = NULL) {
+  public function translation(GlossaryContentTermTranslation $translation = NULL) {
     if (isset($translation)) {
       $this->_translation = $translation;
     } elseif (NULL === $this->_translation) {
-      $this->_translation = new GlossaryContentGlossaryTranslation();
+      $this->_translation = new GlossaryContentTermTranslation();
       $this->_translation->papaya($this->papaya());
     }
     return $this->_translation;
   }
 
-  public function glossary(GlossaryContentGlossary $glossary = NULL) {
-    if (isset($glossary)) {
-      $this->_glossary = $glossary;
-    } elseif (NULL === $this->_glossary) {
-      $this->_glossary = new GlossaryContentGlossary();
-      $this->_glossary->papaya($this->papaya());
+  public function term(GlossaryContentTerm $term = NULL) {
+    if (isset($term)) {
+      $this->_term = $term;
+    } elseif (NULL === $this->_term) {
+      $this->_term = new GlossaryContentTerm();
+      $this->_term->papaya($this->papaya());
     }
-    return $this->_glossary;
+    return $this->_term;
   }
 
   /**
@@ -60,51 +60,66 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
    * @return PapayaUiDialogDatabaseSave
    */
   public function createDialog() {
-    $glossary = $this->glossary();
+    $term = $this->term();
     $translation = $this->translation();
-    $glossaryId = $this->parameters()->get(
-      'glossary_id', NULL, new PapayaFilterInteger(1)
+    $termId = $this->parameters()->get(
+      'term_id', 0, new PapayaFilterInteger(1)
     );
     $filter = [
-      'id' => $glossaryId,
+      'id' => $termId,
       'language_id' => $this->papaya()->administrationLanguage->id
     ];
-    $loaded = $glossary->load(['id' => $glossaryId]);
+    $loaded = $term->load(['id' => $termId]);
     if (!$translation->load($filter)) {
       $translation->key()->assign($filter);
     }
     $dialog = new PapayaUiDialogDatabaseSave($translation);
     $dialog->papaya($this->papaya());
-    $dialog->caption = new PapayaUiStringTranslated($loaded ? 'Edit Glossary' : 'Add Glossary');
+    $dialog->caption = new PapayaUiStringTranslated($loaded ? 'Edit Term' : 'Add Term');
     $dialog->image = $this->papaya()->administrationLanguage->image;
     $dialog->parameterGroup($this->owner()->parameterGroup());
     $dialog->hiddenFields->merge(
       array(
-        'mode' => 'glossaries',
+        'mode' => 'terms',
         'cmd' => 'change',
-        'glossary_id' => $this->parameters()->get('glossary_id', $translation['id']),
+        'term_id' => $termId,
         'language_id' => $this->papaya()->administrationLanguage->id
       )
     );
     $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
-      new PapayaUiStringTranslated('Title'), 'title'
+      new PapayaUiStringTranslated('Term'), 'term'
     );
     $field->setMandatory(TRUE);
-    $dialog->fields[] = $field = new PapayaUiDialogFieldTextareaRichtext(
-      new PapayaUiStringTranslated('Text'), 'text'
+    $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
+      new PapayaUiStringTranslated('Synonyms'), 'synonyms'
+    );
+    $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
+      new PapayaUiStringTranslated('Abbreviations'), 'abbreviations'
+    );
+    $dialog->fields[] = $group = new PapayaUiDialogFieldGroup(
+      new PapayaUiStringTranslated('Texts')
+    );
+    $group->fields[] = $field = new PapayaUiDialogFieldTextareaRichtext(
+      new PapayaUiStringTranslated('Explanation'), 'explanation'
+    );
+    $group->fields[] = $field = new PapayaUiDialogFieldInput(
+      new PapayaUiStringTranslated('Source'), 'source'
+    );
+    $group->fields[] = $field = new PapayaUiDialogFieldInput(
+      new PapayaUiStringTranslated('Links'), 'links'
     );
     $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Save'));
 
-    $dialog->callbacks()->onBeforeSave = function() use ($glossaryId, $translation) {
-      if ($glossaryId < 1) {
-        $glossary = new GlossaryContentGlossary();
-        $glossary->save();
-        $glossaryId = $translation['id'] = $glossary['id'];
-        $translation->key()->assign(['id' => $glossaryId]);
-        $this->parameters()->set('glossary_id', $glossaryId);
+    $dialog->callbacks()->onBeforeSave = function() use ($termId, $translation) {
+      if ($termId < 1) {
+        $term = new GlossaryContentTerm();
+        $term->save();
+        $termId = $translation['id'] = $term['id'];
+        $translation->key()->assign(['id' => $termId]);
+        $this->parameters()->set('term_id', $termId);
         $this->resetAfterSuccess(TRUE);
       }
-      if ($glossaryId < 1) {
+      if ($termId < 1) {
         return FALSE;
       }
       return TRUE;
@@ -122,7 +137,7 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
   public function handleExecutionSuccess() {
     $this->papaya()->messages->dispatch(
       new PapayaMessageDisplayTranslated(
-        PapayaMessage::SEVERITY_INFO, 'Glossary saved.'
+        PapayaMessage::SEVERITY_INFO, 'Term saved.'
       )
     );
   }

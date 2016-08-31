@@ -3,9 +3,10 @@
 class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
 
   protected $_fields = [
-    'id' => 't.glossaryentry_id',
-    'language_id' => 'tt.lng_id',
-    'term' => 'tt.glossaryentry_term'
+    'id' => 't.glossary_term_id',
+    'language_id' => 'tt.language_id',
+    'term' => 'tt.glossary_term',
+    'term_fallback' => 'term_fallback'
   ];
 
   protected $_identifierProperties = ['id'];
@@ -32,12 +33,12 @@ class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
       $languageId = 0;
     }
     $sql = "SELECT 
-                t.glossaryentry_id, 
-                tt.glossaryentry_term, tt.lng_id, 
-                ttf.glossaryentry_term fallback_title
-              FROM %s AS t
-              LEFT JOIN %s AS tt ON (tt.glossaryentry_id = t.glossaryentry_id AND tt.lng_id = '%d')
-              LEFT JOIN %s AS ttf ON (ttf.glossaryentry_id = t.glossaryentry_id)
+                t.glossary_term_id, 
+                tt.glossary_term, tt.language_id, 
+                ttf.glossary_term term_fallback
+              FROM (%s AS t)
+              LEFT JOIN %s AS tt ON (tt.glossary_term_id = t.glossary_term_id AND tt.language_id = '%d')
+              LEFT JOIN %s AS ttf ON (ttf.glossary_term_id = t.glossary_term_id)
                    ".$this->_compileCondition($filter)."
                    ".$this->_compileOrderBy();
     $parameters = array(
@@ -46,6 +47,6 @@ class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
       $languageId,
       $databaseAccess->getTableName($this->_tableTermTranslations)
     );
-    return $this->_loadRecords($sql, $parameters, $limit, $offset, 'id');
+    return $this->_loadRecords($sql, $parameters, $limit, $offset, $this->_identifierProperties);
   }
 }

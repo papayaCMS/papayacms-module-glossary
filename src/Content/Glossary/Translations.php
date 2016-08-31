@@ -14,14 +14,4 @@ class GlossaryContentGlossaryTranslations extends PapayaDatabaseRecordsLazy {
   protected $_identifierProperties = ['id', 'language_id'];
 
   protected $_tableName = GlossaryContentTables::TABLE_GLOSSARY_TRANSLATIONS;
-
-  public function delete($filter) {
-    $databaseAccess = $this->getDatabaseAccess();
-    return (
-      FALSE !== $databaseAccess->deleteRecord(
-        $databaseAccess->getTableName($this->_tableName),
-        $this->mapping()->mapPropertiesToFields($filter)
-      )
-    );
-  }
 }

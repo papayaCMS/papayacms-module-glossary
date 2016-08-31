@@ -19,5 +19,7 @@
     <table name="glossary_ignorewords"/>
     <table name="glossaryentries"/>
     <table name="glossaryentries_trans"/>
+
+    <table name="glossary_terms"/>
   </tables>
 </modulegroup>

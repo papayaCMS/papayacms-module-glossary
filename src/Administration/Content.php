@@ -18,8 +18,11 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     $modes = parent::_createCommands($name, $default);
     $modes->parameterGroup($this->parameterGroup());
 
-    $modes['terms'] = $commands = new GlossaryAdministrationContentTerms();
+    $modes['terms'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
     $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_TERMS]);
+    $commands['change'] = new GlossaryAdministrationContentTermChange();
+    $commands['delete'] = new GlossaryAdministrationContentTermDelete();
+    $commands['delete-translation'] = new GlossaryAdministrationContentTermTranslationDelete();
 
     $modes['glossaries'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
     $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_GLOSSARIES]);
@@ -105,7 +108,7 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
       if ($wordId = $this->parameters()->get('ignore_word_id', 0, new PapayaFilterInteger(1))) {
         $toolbar->elements[] = $button = new PapayaUiToolbarButton();
         $button->reference->setParameters(
-          [ 'mode' => 'ignore_words', 'cmd' => 'delete', 'ignore_word_id' => $wordId],
+          [ 'mode' => 'ignore-words', 'cmd' => 'delete', 'ignore_word_id' => $wordId],
           $this->parameterGroup()
         );
         $button->caption = new PapayaUiStringTranslated('Delete ignore word');
@@ -121,6 +124,26 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
       );
       $button->caption = new PapayaUiStringTranslated('Add term');
       $button->image = 'actions-table-add';
+      if ($termId = $this->parameters()->get('term_id', 0, new PapayaFilterInteger(1))) {
+        $toolbar->elements[] = $button = new PapayaUiToolbarButton();
+        $button->reference->setParameters(
+          [ 'mode' => 'terms', 'cmd' => 'delete', 'term_id' => $termId],
+          $this->parameterGroup()
+        );
+        $button->caption = new PapayaUiStringTranslated('Delete term');
+        $button->image = 'actions-table-delete';
+        /** @var PapayaUiControlCommand $command */
+        $command = $this->commands()['terms']['delete-translation'];
+        if ($command->condition()->validate()) {
+          $toolbar->elements[] = $button = new PapayaUiToolbarButton();
+          $button->reference->setParameters(
+            [ 'mode' => 'terms', 'cmd' => 'delete-translation', 'term_id' => $termId],
+            $this->parameterGroup()
+          );
+          $button->caption = new PapayaUiStringTranslated('Delete term translation');
+          $button->image = 'actions-phrase-delete';
+        }
+      }
       break;
     }
   }

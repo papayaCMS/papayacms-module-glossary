@@ -15,7 +15,7 @@ class GlossaryContentGlossary extends PapayaDatabaseRecord  {
   public function _createCallbacks() {
     $callbacks = parent::_createCallbacks();
     $callbacks->onBeforeDelete = function() {
-      return $this->translations()->delete(['id' => $this['id']]);
+      return $this->translations()->truncate(['id' => $this['id']]);
     };
     return $callbacks;
   }

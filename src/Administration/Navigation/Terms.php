@@ -103,6 +103,11 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
    */
   public function callbackCreateItem($builder, $items, $element, $index) {
     $items[] = $item = new PapayaUiListviewItem('items-page', $element['term']);
+    if (empty($element['term']) && !empty($element['term_fallback'])) {
+      $item->caption = '['.$element['term_fallback'].']';
+    } elseif (empty($element['term'])) {
+      $item->caption = '[#'.$element['id'].']';
+    }
     $item->papaya($this->papaya());
     $item->reference->setParameters(
       array(

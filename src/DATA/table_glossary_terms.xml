@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<table name="glossary_terms" prefix="yes">
+  <fields>
+    <field name="glossary_term_id" type="integer" size="8" null="no" autoinc="yes"/>
+  </fields>
+  <keys>
+    <primary-key>
+      <field>glossary_term_id</field>
+    </primary-key>
+  </keys>
+</table>
