@@ -15,8 +15,15 @@ class GlossaryAdministrationContentTermDelete
     } elseif (NULL === $this->_term) {
       $this->_term = new GlossaryContentTerm();
       $this->_term->papaya($this->papaya());
+      $this->_term->activateLazyLoad(
+        ['id' => $this->parameters()->get('term_id', 0)]
+      );
     }
     return $this->_term;
+  }
+
+  public function createCondition() {
+    return new PapayaUiControlCommandConditionRecord($this->term());
   }
 
   /**
