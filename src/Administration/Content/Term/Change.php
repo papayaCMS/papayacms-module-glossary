@@ -105,8 +105,8 @@ class GlossaryAdministrationContentTermChange extends PapayaUiControlCommandDial
     $group->fields[] = $field = new PapayaUiDialogFieldInput(
       new PapayaUiStringTranslated('Source'), 'source'
     );
-    $group->fields[] = $field = new PapayaUiDialogFieldInput(
-      new PapayaUiStringTranslated('Links'), 'links'
+    $group->fields[] = $field = new PapayaUiDialogFieldTextareaLines(
+      new PapayaUiStringTranslated('Links'), 'links', 6, NULL, new PapayaFilterPcre('([^=]+=.+)')
     );
     $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Save'));
 

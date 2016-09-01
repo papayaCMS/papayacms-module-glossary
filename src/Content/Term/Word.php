@@ -2,6 +2,10 @@
 
 class GlossaryContentTermWord extends PapayaDatabaseRecordLazy {
 
+  const TYPE_TERM = '1';
+  const TYPE_SYNONYM = '2';
+  const TYPE_ABBREVIATION = '3';
+
   protected $_fields = [
     'id' => 'glossary_word_id',
     'type' => 'glossary_word_type',

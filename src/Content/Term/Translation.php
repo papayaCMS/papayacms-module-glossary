@@ -5,14 +5,91 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
   protected $_fields = [
     'id' => 'glossary_term_id',
     'language_id' => 'language_id',
+    'modified' => 'glossary_term_modified',
     'term' => 'glossary_term',
     'explanation' => 'glossary_term_explanation',
-    'synonyms' => 'glossary_synonyms'
+    'source' => 'glossary_term_source',
+    'links' => 'glossary_term_links',
+    'synonyms' => 'glossary_synonyms',
+    'abbreviations' => 'glossary_abbreviations'
   ];
 
   protected $_tableName = GlossaryContentTables::TABLE_TERM_TRANSLATIONS;
 
+  /**
+   * @var GlossaryContentTermWords
+   */
+  private $_words;
+
   protected function _createKey() {
     return new PapayaDatabaseRecordKeyFields($this, $this->_tableName, ['id', 'language_id']);
+  }
+
+  public function _createCallbacks() {
+    $callbacks = parent::_createCallbacks();
+    $callbacks->onBeforeDelete = function() {
+      //return $this->words()->truncate(['id' => $this['id']]);
+    };
+    $callbacks->onBeforeInsert = function() {
+      $this['modified'] = time();
+      return true;
+    };
+    $callbacks->onBeforeUpdate = function() {
+      $this['modified'] = time();
+      return true;
+    };
+    $callbacks->onAfterInsert = [$this, 'updateWords'];
+    $callbacks->onAfterUpdate = [$this, 'updateWords'];
+    return $callbacks;
+  }
+
+  public function updateWords() {
+    $keys = [
+      'term' => GlossaryContentTermWord::TYPE_TERM,
+      'synonyms' => GlossaryContentTermWord::TYPE_SYNONYM,
+      'abbreviations' => GlossaryContentTermWord::TYPE_ABBREVIATION
+    ];
+    $words = [];
+    foreach ($keys as $key => $type) {
+      $this->buildWordList($words, $this[$key], $type);
+    }
+    $filter = [
+      'language_id' => $this['language_id'],
+      'term_id' => $this['id']
+    ];
+    if ($this->words()->truncate($filter)) {
+      $this->words()->insert($words);
+    }
+  }
+
+  private function buildWordList(&$words, $string, $type) {
+    preg_match_all(
+      '((?:^|,\\s*)(?<word>(?<first>[^,\\s]+)[^,]*))u', $string, $matches, PREG_SET_ORDER
+    );
+    foreach ($matches as $word) {
+      $words[] = [
+        'language_id' => $this['language_id'],
+        'term_id' => $this['id'],
+        'type' => $type,
+        'word' => trim(PapayaUtilArray::get($word, 'word', '')),
+        'normalized' => PapayaUtilStringUtf8::toLowerCase(
+          PapayaUtilArray::get($word, 'first', '')
+        )
+      ];
+    }
+  }
+
+  /**
+   * @param GlossaryContentTermWords $words
+   * @return GlossaryContentTermWords
+   */
+  public function words(GlossaryContentTermWords $words = NULL) {
+    if (isset($words)) {
+      $this->_words = $words;
+    } elseif (NULL === $this->_words) {
+      $this->_words = new GlossaryContentTermWords();
+      $this->_words->papaya($this->papaya());
+    }
+    return $this->_words;
   }
 }
