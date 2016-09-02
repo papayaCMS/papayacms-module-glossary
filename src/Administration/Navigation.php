@@ -9,12 +9,12 @@ class GlossaryAdministrationNavigation extends PapayaAdministrationPagePart {
    * @param string $default
    * @return PapayaUiControlCommandController
    */
-  protected function _createCommands($name = 'cmd', $default = 'show') {
-    $commands = parent::_createCommands('mode', 'terms');
-    $commands->parameterGroup($this->parameterGroup());
-    $commands['terms'] = new GlossaryAdministrationNavigationTerms();
-    $commands['glossaries'] = new GlossaryAdministrationNavigationGlossaries();
-    $commands['ignore-words'] = new GlossaryAdministrationNavigationIgnores();
-    return $commands;
+  protected function _createCommands($name = 'cmd', $default = 'terms') {
+    $modes = parent::_createCommands($name, $default);
+    $modes->parameterGroup($this->parameterGroup());
+    $modes['terms'] = new GlossaryAdministrationNavigationTerms();
+    $modes['glossaries'] = new GlossaryAdministrationNavigationGlossaries();
+    $modes['ignore-words'] = new GlossaryAdministrationNavigationIgnores();
+    return $modes;
   }
 }

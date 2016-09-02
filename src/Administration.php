@@ -30,4 +30,8 @@ class GlossaryAdministration extends PapayaAdministrationPage {
   protected function createNavigation() {
     return new GlossaryAdministrationNavigation($this);
   }
+
+  protected  function createInformation() {
+    return new GlossaryAdministrationInformation($this);
+  }
 }

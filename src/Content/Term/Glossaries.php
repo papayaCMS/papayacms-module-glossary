@@ -3,18 +3,15 @@
 class GlossaryContentTermGlossaries extends PapayaDatabaseRecordsLazy {
 
   protected $_fields = [
-    'id' => 'g.glossary_id',
+    'id' => 'tl.glossary_id',
     'term_id' => 'tl.glossary_term_id',
     'title' => 'gt.glossary_title'
   ];
 
-  protected $_identifierProperties = ['id'];
-
   protected $_orderByProperties = ['title' => PapayaDatabaseInterfaceOrder::ASCENDING];
 
-  protected $_tableGlossaries = GlossaryContentTables::TABLE_GLOSSARIES;
+  protected $_tableName = GlossaryContentTables::TABLE_TERM_GLOSSARY_LINKS;
   protected $_tableGlossaryTranslations = GlossaryContentTables::TABLE_GLOSSARY_TRANSLATIONS;
-  protected $_tableGlossaryTermLinks = GlossaryContentTables::TABLE_GLOSSARY_TERM_LINKS;
 
   /**
    * Load glossaries defined by filter conditions.
@@ -32,25 +29,16 @@ class GlossaryContentTermGlossaries extends PapayaDatabaseRecordsLazy {
     } else {
       $languageId = 0;
     }
-    if (isset($filter['term_id'])) {
-      $termId = (int)$filter['term_id'];
-      unset($filter['term_id']);
-    } else {
-      $termId = 0;
-    }
-    $sql = "SELECT g.glossary_id, gt.glossary_title
-              FROM %s AS g
-             INNER JOIN %s as tl ON (tl.term_id = '%d')
-              LEFT JOIN %s AS gt ON (gt.glossary_id = g.glossary_id AND gt.lng_id = '%d')
+    $sql = "SELECT tl.glossary_id, gt.glossary_title
+              FROM %s AS tl
+              LEFT JOIN %s AS gt ON (gt.glossary_id = tl.glossary_id AND gt.lng_id = '%d')
                    ".$this->_compileCondition($filter)."
                    ".$this->_compileOrderBy();
     $parameters = array(
-      $databaseAccess->getTableName($this->_tableGlossaries),
-      $databaseAccess->getTableName($this->_tableGlossaryTermLinks),
-      $termId,
+      $databaseAccess->getTableName($this->_tableName),
       $databaseAccess->getTableName($this->_tableGlossaryTranslations),
       $languageId
     );
-    return $this->_loadRecords($sql, $parameters, $limit, $offset, 'id');
+    return $this->_loadRecords($sql, $parameters, $limit, $offset, NULL);
   }
 }

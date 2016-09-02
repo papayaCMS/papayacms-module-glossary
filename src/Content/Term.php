@@ -13,6 +13,11 @@ class GlossaryContentTerm extends PapayaDatabaseRecordLazy {
    */
   private $_translations;
 
+  /**
+   * @var GlossaryContentTermGlossaries
+   */
+  private $_glossaries;
+
   public function _createCallbacks() {
     $callbacks = parent::_createCallbacks();
     $callbacks->onBeforeDelete = function() {
@@ -29,5 +34,15 @@ class GlossaryContentTerm extends PapayaDatabaseRecordLazy {
       $this->_translations->papaya($this->papaya());
     }
     return $this->_translations;
+  }
+
+  public function glossaries(GlossaryContentTermGlossaries $glossaries = NULL) {
+    if (isset($glossaries)) {
+      $this->_glossaries = $glossaries;
+    } elseif (NULL === $this->_glossaries) {
+      $this->_glossaries = new GlossaryContentTermGlossaries();
+      $this->_glossaries->papaya($this->papaya());
+    }
+    return $this->_glossaries;
   }
 }

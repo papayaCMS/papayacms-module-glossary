@@ -28,7 +28,7 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
   public function _createCallbacks() {
     $callbacks = parent::_createCallbacks();
     $callbacks->onBeforeDelete = function() {
-      //return $this->words()->truncate(['id' => $this['id']]);
+      return $this->words()->truncate(['term_id' => $this['id']]);
     };
     $callbacks->onBeforeInsert = function() {
       $this['modified'] = time();

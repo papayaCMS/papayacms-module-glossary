@@ -82,6 +82,7 @@ class GlossaryAdministrationContentGlossaryChange extends PapayaUiControlCommand
       array(
         'mode' => 'glossaries',
         'cmd' => 'change',
+        'change' => 'term',
         'glossary_id' => $this->parameters()->get('glossary_id', $translation['id']),
         'language_id' => $this->papaya()->administrationLanguage->id
       )
