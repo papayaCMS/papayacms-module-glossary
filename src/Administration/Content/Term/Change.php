@@ -65,27 +65,37 @@ class GlossaryAdministrationContentTermChange extends PapayaUiControlCommandDial
     $termId = $this->parameters()->get(
       'term_id', 0, new PapayaFilterInteger(1)
     );
-    $filter = [
-      'id' => $termId,
-      'language_id' => $this->papaya()->administrationLanguage->id
-    ];
-    $loaded = $term->load(['id' => $termId]);
-    if (!$translation->load($filter)) {
-      $translation->key()->assign($filter);
-    }
+    $term->load(
+      [
+        'id' => $termId
+      ]
+    );
+    $translation->load(
+      [
+        'id' => $termId,
+        'language_id' => $this->papaya()->administrationLanguage->id
+      ]
+    );
+    $translation['id'] = $termId;
+    $loaded = $term->key()->exists();
     $dialog = new PapayaUiDialogDatabaseSave($translation);
     $dialog->papaya($this->papaya());
     $dialog->caption = new PapayaUiStringTranslated($loaded ? 'Edit Term' : 'Add Term');
     $dialog->image = $this->papaya()->administrationLanguage->image;
-    $dialog->parameterGroup($this->owner()->parameterGroup());
+    $dialog->parameterGroup($this->parameterGroup());
     $dialog->hiddenFields->merge(
-      array(
+      [
         'mode' => 'terms',
         'cmd' => 'change',
-        'term_id' => $termId,
-        'language_id' => $this->papaya()->administrationLanguage->id
-      )
+        'language_id' => $this->papaya()->administrationLanguage->id,
+        'term_id' => (int)$termId,
+        'offset' => $this->parameters()->get('offset', 0),
+        'search-for' => $this->parameters()->get('search-for', ''),
+        'glossary_id' => $this->parameters()->get('glossary_id', 0)
+      ]
     );
+    if ($termId > 0) {
+    }
     $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
       new PapayaUiStringTranslated('Term'), 'term'
     );
@@ -110,20 +120,7 @@ class GlossaryAdministrationContentTermChange extends PapayaUiControlCommandDial
     );
     $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Save'));
 
-    $dialog->callbacks()->onBeforeSave = function() use ($termId, $translation) {
-      if ($termId < 1) {
-        $term = new GlossaryContentTerm();
-        $term->save();
-        $termId = $translation['id'] = $term['id'];
-        $translation->key()->assign(['id' => $termId]);
-        $this->parameters()->set('term_id', $termId);
-        $this->resetAfterSuccess(TRUE);
-      }
-      if ($termId < 1) {
-        return FALSE;
-      }
-      return TRUE;
-    };
+    $this->resetAfterSuccess(TRUE);
 
     $this->callbacks()->onExecuteSuccessful = array($this, 'handleExecutionSuccess');
     $this->callbacks()->onExecuteFailed = array($this, 'dispatchErrorMessage');
@@ -135,6 +132,7 @@ class GlossaryAdministrationContentTermChange extends PapayaUiControlCommandDial
    * Callback to dispatch a message to the user that the record was saved and trigger initial sync.
    */
   public function handleExecutionSuccess() {
+    $this->parameters()->set('term_id', $this->translation()['id']);
     $this->papaya()->messages->dispatch(
       new PapayaMessageDisplayTranslated(
         PapayaMessage::SEVERITY_INFO, 'Term saved.'

@@ -40,7 +40,10 @@ class GlossaryAdministrationInformationTermGlossaries extends PapayaUiControlCom
         'cmd' => 'change',
         'change' => 'term-glossaries',
         'term_id' => $this->_term['id'],
-        'language_id' => $this->papaya()->administrationLanguage->id
+        'language_id' => $this->papaya()->administrationLanguage->id,
+        'offset' => $this->parameters()->get('offset', 0),
+        'search-for' => $this->parameters()->get('search-for', ''),
+        'glossary_id' => $this->parameters()->get('glossary_id', 0)
       )
     );
     $dialog->data()->set(

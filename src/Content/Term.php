@@ -21,7 +21,7 @@ class GlossaryContentTerm extends PapayaDatabaseRecordLazy {
   public function _createCallbacks() {
     $callbacks = parent::_createCallbacks();
     $callbacks->onBeforeDelete = function() {
-      return $this->translations()->truncate(['id' => $this['id']]);
+      return $this->translations()->truncate(['id' => (int)$this['id']]);
     };
     return $callbacks;
   }
@@ -32,6 +32,11 @@ class GlossaryContentTerm extends PapayaDatabaseRecordLazy {
     } elseif (NULL === $this->_translations) {
       $this->_translations = new GlossaryContentTermTranslations();
       $this->_translations->papaya($this->papaya());
+      $this->_translations->activateLazyLoad(
+        [
+          'id' => (int)$this['id']
+        ]
+      );
     }
     return $this->_translations;
   }
@@ -42,6 +47,11 @@ class GlossaryContentTerm extends PapayaDatabaseRecordLazy {
     } elseif (NULL === $this->_glossaries) {
       $this->_glossaries = new GlossaryContentTermGlossaries();
       $this->_glossaries->papaya($this->papaya());
+      $this->_glossaries->activateLazyLoad(
+        [
+          'term_id' => (int)$this['id']
+        ]
+      );
     }
     return $this->_glossaries;
   }

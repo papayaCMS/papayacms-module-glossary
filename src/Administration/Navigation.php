@@ -9,7 +9,7 @@ class GlossaryAdministrationNavigation extends PapayaAdministrationPagePart {
    * @param string $default
    * @return PapayaUiControlCommandController
    */
-  protected function _createCommands($name = 'cmd', $default = 'terms') {
+  protected function _createCommands($name = 'mode', $default = 'terms') {
     $modes = parent::_createCommands($name, $default);
     $modes->parameterGroup($this->parameterGroup());
     $modes['terms'] = new GlossaryAdministrationNavigationTerms();

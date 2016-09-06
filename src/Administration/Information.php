@@ -33,7 +33,7 @@ class GlossaryAdministrationInformation extends PapayaAdministrationPagePart {
       $this->_term->papaya($this->papaya());
       $this->_term->activateLazyLoad(
         [
-          'id' => $this->parameters()->get('term_id', 0)
+          'id' => $this->parameters()->get('term_id', 0, new PapayaFilterInteger(1))
         ]
       );
     }

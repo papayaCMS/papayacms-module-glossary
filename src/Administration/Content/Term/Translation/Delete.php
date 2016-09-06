@@ -17,11 +17,14 @@ class GlossaryAdministrationContentTermTranslationDelete
       $this->_translation->papaya($this->papaya());
       $this->_translation->activateLazyLoad(
         [
-          'id' => $this->parameters()->get('term_id', 0),
+          'id' => $this->parameters()->get('term_id', 0, new PapayaFilterInteger(1)),
           'language_id' => $this->parameters()->get(
             'language_id',
             $this->papaya()->administrationLanguage->id
-          )
+          ),
+          'offset' => $this->parameters()->get('offset', 0),
+          'search-for' => $this->parameters()->get('search-for', ''),
+          'glossary_id' => $this->parameters()->get('glossary_id', 0)
         ]
       );
     }

@@ -6,6 +6,7 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
     'id' => 'glossary_term_id',
     'language_id' => 'language_id',
     'modified' => 'glossary_term_modified',
+    'created' => 'glossary_term_created',
     'term' => 'glossary_term',
     'explanation' => 'glossary_term_explanation',
     'source' => 'glossary_term_source',
@@ -31,8 +32,13 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
       return $this->words()->truncate(['term_id' => $this['id']]);
     };
     $callbacks->onBeforeInsert = function() {
-      $this['modified'] = time();
-      return true;
+      $term = new GlossaryContentTerm();
+      if ($this['id'] < 1 || !$term->load(['id' => $this['id']])) {
+        $term->save();
+        $this['id'] = $term['id'];
+      }
+      $this['created'] = $this['modified'] = time();
+      return $term['id'] > 0;
     };
     $callbacks->onBeforeUpdate = function() {
       $this['modified'] = time();

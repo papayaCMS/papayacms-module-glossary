@@ -15,6 +15,12 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
    * @var GlossaryContentTerms
    */
   private $_terms = NULL;
+
+  /**
+   * @var GlossaryContentGlossaries
+   */
+  private $_glossaries;
+
   /**
    * @var PapayaUiToolbarPaging
    */
@@ -22,6 +28,7 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
 
   public function appendTo(PapayaXmlElement $parent) {
     $parent->append($this->filterDialog());
+    $this->paging()->itemsCount = $this->terms()->absCount();
     $this->listview()->toolbars->topLeft->elements[] = $this->paging();
     $parent->append($this->listview());
   }
@@ -31,14 +38,27 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
       $this->_filterDialog = $filterDialog;
     } elseif (NULL === $this->_filterDialog) {
       $this->_filterDialog = $dialog = new PapayaUiDialog();
-      $dialog->parameterGroup('filter');
+      $dialog->options->useConfirmation = FALSE;
+      $dialog->options->useToken = FALSE;
+      $dialog->parameterMethod(PapayaUiDialog::METHOD_MIXED_GET);
+      $dialog->parameterGroup($this->parameterGroup());
       $dialog->options->dialogWidth = PapayaUiDialogOptions::SIZE_SMALL;
       $dialog->options->captionStyle = PapayaUiDialogOptions::CAPTION_NONE;
       $dialog->caption = new PapayaUiStringTranslated('Search');
-      $dialog->fields[] = new PapayaUiDialogFieldInput(new PapayaUiStringTranslated('Term'), 'term');
+      $dialog->fields[] = new PapayaUiDialogFieldInput(new PapayaUiStringTranslated('Term'), 'search-for');
       $dialog->fields[] = new PapayaUiDialogFieldSelect(
-        new PapayaUiStringTranslated('Glossary'), 'glossary', [ 0 => 'All' ]
+        new PapayaUiStringTranslated('Glossary'),
+        'glossary_id',
+        new PapayaIteratorMultiple(
+          PapayaIteratorMultiple::MIT_KEYS_ASSOC,
+          [ 0 => 'All' ],
+          new PapayaIteratorFilter(
+            new PapayaIteratorArrayMapper($this->glossaries(), 'title'),
+            new PapayaFilterNotEmpty()
+          )
+        )
       );
+      $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Search'));
     }
     return $this->_filterDialog;
   }
@@ -70,8 +90,7 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
       $this->_paging = $paging;
     } elseif (NULL === $this->_paging) {
       $this->_paging = $paging = new PapayaUiToolbarPaging(
-        [$this->parameterGroup(), 'page'],
-        $this->terms()->absCount()
+        [$this->parameterGroup(), 'offset'], 0, PapayaUiToolbarPaging::MODE_OFFSET
       );
       $paging->papaya($this->papaya());
     }
@@ -84,15 +103,37 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
     } elseif (NULL == $this->_terms) {
       $this->_terms = new GlossaryContentTerms();
       $this->_terms->papaya($this->papaya());
+      $filter =  [
+        'language_id' => $this->papaya()->administrationLanguage->id
+      ];
+      if ($glossaryId = $this->parameters()->get('glossary_id', 0)) {
+        $filter['glossary_id'] = $glossaryId;
+      }
+      if ($searchFor = $this->parameters()->get('search-for', '')) {
+        $filter['term,contains'] = $searchFor;
+      }
       $this->_terms->activateLazyLoad(
-        [
-          'language_id' => $this->papaya()->administrationLanguage->id
-        ],
+        $filter,
         $this->paging()->itemsPerPage,
-        $this->paging()->currentOffset
+        $this->parameters()->get('offset', 0)
       );
     }
     return $this->_terms;
+  }
+
+  public function glossaries(GlossaryContentGlossaries $glossaries = NULL) {
+    if (isset($glossaries)) {
+      $this->_glossaries = $glossaries;
+    } elseif (NULL == $this->_glossaries) {
+      $this->_glossaries = new GlossaryContentGlossaries();
+      $this->_glossaries->papaya($this->papaya());
+      $this->_glossaries->activateLazyLoad(
+        [
+          'language_id' => $this->papaya()->administrationLanguage->id
+        ]
+      );
+    }
+    return $this->_glossaries;
   }
 
   /**
@@ -113,7 +154,10 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
       array(
         'mode' => 'terms',
         'cmd' => 'change',
-        'term_id' => $element['id']
+        'term_id' => $element['id'],
+        'offset' => $this->parameters()->get('offset', 0),
+        'search-for' => $this->parameters()->get('search-for', ''),
+        'glossary_id' => $this->parameters()->get('glossary_id', 0)
       ),
       $this->parameterGroup()
     );

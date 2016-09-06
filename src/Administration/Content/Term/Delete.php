@@ -49,7 +49,10 @@ class GlossaryAdministrationContentTermDelete
         array(
           'mode' => 'terms',
           'cmd' => 'delete',
-          'term_id' => $termId
+          'term_id' => $termId,
+          'offset' => $this->parameters()->get('offset', 0),
+          'search-for' => $this->parameters()->get('search-for', ''),
+          'glossary_id' => $this->parameters()->get('glossary_id', 0)
         )
       );
       $dialog->fields[] = new PapayaUiDialogFieldInformation(
