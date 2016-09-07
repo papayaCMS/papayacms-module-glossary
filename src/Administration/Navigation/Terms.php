@@ -51,10 +51,18 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
         'glossary_id',
         new PapayaIteratorMultiple(
           PapayaIteratorMultiple::MIT_KEYS_ASSOC,
-          [ 0 => 'All' ],
-          new PapayaIteratorFilter(
-            new PapayaIteratorArrayMapper($this->glossaries(), 'title'),
-            new PapayaFilterNotEmpty()
+          [ 0 => new PapayaUiStringTranslated('All') ],
+          new PapayaIteratorCallback(
+            $this->glossaries(),
+            function($element) {
+              if (!empty($element['title'])) {
+                return $element['title'];
+              } elseif (!empty($element['title_fallback'])) {
+                return $element['title_fallback'];
+              } elseif (empty($element['title'])) {
+                return '[#'.$element['id'].']';
+              }
+            }
           )
         )
       );
