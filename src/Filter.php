@@ -20,6 +20,36 @@ class GlossaryFilter
   private $_glossaries;
 
   /**
+   * @var GlossaryContentIgnores
+   */
+  private $_ignoreWords;
+
+  /**
+   * @var GlossaryContentTermWords
+   */
+  private $_words;
+
+  /**
+   * @var GlossaryContentTerms
+   */
+  private $_terms;
+
+  /**
+   * @var array
+   */
+  private $_used = [];
+
+  /**
+   * @var int
+   */
+  private $_minimumTokenLength = 2;
+
+  /**
+   * @var bool
+   */
+  private $_isFullPage;
+
+  /**
    * @see PapayaPluginEditable::content()
    * @param PapayaPluginEditableContent $content
    * @return PapayaPluginEditableContent
@@ -48,24 +78,14 @@ class GlossaryFilter
     $dialog = $editor->dialog();
     $dialog->caption = new PapayaUiStringTranslated('Configure glossary data filter');
     $dialog->image = '';
-    $dialog->fields[] = new PapayaUiDialogFieldInputPage(
-      new PapayaUiStringTranslated('Glossary Page Id'),
-      'glossary_page_id',
-      NULL,
-      TRUE
-    );
-    $glossaryOptions = [
-      '0' => new PapayaUiStringTranslated('All')
-    ];
-    if ($this->papaya()->plugins->has(self::DOMAIN_CONNECTOR_GUID)) {
-      $glossaryOptions['-1'] = new PapayaUiStringTranslated('Domain specific');
-    }
     $dialog->fields[] = new PapayaUiDialogFieldSelectRadio(
       new PapayaUiStringTranslated('Glossary'),
       'glossary',
       new PapayaIteratorMultiple(
         PapayaIteratorMultiple::MIT_KEYS_ASSOC,
-        $glossaryOptions,
+        [
+          '0' => new PapayaUiStringTranslated('All')
+        ],
         new PapayaIteratorCallback(
           $this->glossaries(),
           function($element) {
@@ -80,12 +100,241 @@ class GlossaryFilter
         )
       )
     );
-    $dialog->fields[] = new PapayaUiDialogFieldSelectRadio(
-      new PapayaUiStringTranslated('Reference Parameters'),
+    $dialog->fields[] = $field = new PapayaUiDialogFieldSelectCheckboxes(
+      new PapayaUiStringTranslated('Link Types'),
+      'glossary_word_types',
+      new PapayaUiStringTranslatedList(
+         [
+           GlossaryContentTermWord::TYPE_TERM => 'Term',
+           GlossaryContentTermWord::TYPE_SYNONYM => 'Synonym',
+           GlossaryContentTermWord::TYPE_ABBREVIATION => 'Abbreviation',
+           GlossaryContentTermWord::TYPE_DERIVATION => 'Derivation'
+         ]
+      )
+    );
+    $field->setDefaultValue(
+      [GlossaryContentTermWord::TYPE_TERM, GlossaryContentTermWord::TYPE_DERIVATION]
+    );
+    $dialog->fields[] = $field = new PapayaUiDialogFieldSelectCheckboxes(
+      new PapayaUiStringTranslated('Link Url'),
+      'glossary_word_url_text',
+      new PapayaUiStringTranslatedList(
+        [
+          GlossaryContentTermWord::TYPE_SYNONYM => 'Synonym',
+          GlossaryContentTermWord::TYPE_ABBREVIATION => 'Abbreviation',
+          GlossaryContentTermWord::TYPE_DERIVATION => 'Derivation'
+        ]
+      ),
+      FALSE
+    );
+    if ($this->papaya()->plugins->has(self::DOMAIN_CONNECTOR_GUID)) {
+      $dialog->fields[] = new PapayaUiDialogFieldInput(
+        new PapayaUiStringTranslated('Domain option'),
+        'glossary_domain_option',
+        100,
+        NULL,
+        new PapayaFilterPcre('(^[A-Z_]+$)D')
+      );
+    }
+    $dialog->fields[] = $group = new PapayaUiDialogFieldGroup(
+      new PapayaUiStringTranslated('Link')
+    );
+    $group->fields[] = new PapayaUiDialogFieldInputPage(
+      new PapayaUiStringTranslated('Glossary Page Id'),
+      'glossary_page_id',
+      NULL,
+      TRUE
+    );
+    $group->fields[] = new PapayaUiDialogFieldSelectRadio(
+      new PapayaUiStringTranslated('Backlink Parameters'),
       'add_refpage',
-      new PapayaUiStringTranslatedList(array('no', 'yes'))
+      new PapayaUiStringTranslatedList(
+        [
+          0 => 'disable',
+          1 => 'enable'
+        ]
+      )
     );
     return $editor;
+  }
+
+  function prepare($content, PapayaObjectParameters $options = NULL) {
+    $options = isset($options) ? $options : new PapayaObjectParameters([]);
+    $this->_isFullPage = $options->get('fullpage', false);
+    $this->_used = [];
+    $tokens = preg_split('([^\pL]+)u', $content);
+    $ignoreWords = iterator_to_array(
+      new PapayaIteratorCallback(
+        $this->ignoreWords(),
+        function($value) {
+          return $value['word'];
+        },
+        PapayaIteratorCallback::MODIFY_KEYS
+      )
+    );
+    $words = [];
+    foreach ($tokens as $token) {
+      $word = PapayaUtilStringUtf8::toLowerCase($token);
+      if (!isset($ignoreWords[$word]) && PapayaUtilStringUtf8::length($word) >= $this->_minimumTokenLength) {
+        $words[$word] = TRUE;
+      }
+    };
+    if (count($words) > 0) {
+      $filter = [
+        'language_id' => $this->papaya()->request->languageId,
+        'normalized' => array_keys($words),
+        'type' => $this->content()->get(
+          'glossary_word_types',
+          [GlossaryContentTermWord::TYPE_TERM, GlossaryContentTermWord::TYPE_DERIVATION],
+          new PapayaFilterLogicalAnd(
+            new PapayaFilterArraySize(1),
+            new PapayaFilterArray(
+              new PapayaFilterList(
+                [
+                  GlossaryContentTermWord::TYPE_TERM,
+                  GlossaryContentTermWord::TYPE_SYNONYM,
+                  GlossaryContentTermWord::TYPE_ABBREVIATION,
+                  GlossaryContentTermWord::TYPE_DERIVATION
+                ]
+              )
+            )
+          )
+        )
+      ];
+      $glossaryId = $this->getGlossaryFromDomainOptions($this->content()->get('glossary_id', 0));
+      if ($glossaryId > 0) {
+        $filter['glossary_id'] = $glossaryId;
+      }
+      $this->words()->load($filter);
+    }
+  }
+
+  function applyTo($content) {
+    if (empty($content)) {
+      return $content;
+    }
+    try {
+      $targetPageId = $this->content()->get('glossary_page_id', 0);
+      if ($this->content()->get('add_refpage', 0)) {
+        $parameters = [
+          'refpage' => $this->papaya()->request->pageId
+        ];
+        $queryString = $this->papaya()->request->getParameters(PapayaRequest::SOURCE_QUERY)->getQueryString(
+          $this->papaya()->request->getParameterGroupSeparator()
+        );
+        if ((string)$queryString !== '') {
+          $parameters['refparams'] = $queryString;
+        }
+      }
+      $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
+      $words = iterator_to_array(
+        new PapayaIteratorCallback(
+          $this->words(),
+          function($record) {
+            return PapayaUtilStringUtf8::toLowerCase($record['word']);
+          },
+          PapayaIteratorCallback::MODIFY_KEYS
+        )
+      );
+      uksort(
+        $words,
+        function($one, $two) {
+          return PapayaUtilStringUtf8::length($two) - PapayaUtilStringUtf8::length($one);
+        }
+      );
+      $pattern = '(('.implode('|', array_map('preg_quote', array_keys($words))).'))i';
+      $document = new PapayaXmlDocument();
+      $document->appendElement('content')->appendXml($content);
+      foreach ($document->xpath()->evaluate('//text()[not(ancestor::a)]') as $textNode) {
+        $parts = preg_split($pattern, $textNode->textContent, -1, PREG_SPLIT_DELIM_CAPTURE);
+        if (count($parts) > 1) {
+          /** @var PapayaXmlElement $parentNode */
+          $parentNode = $textNode->parentNode;
+          $parentNode->removeChild($textNode);
+          foreach ($parts as $part) {
+            $lower = PapayaUtilStringUtf8::toLowerCase($part);
+            if (isset($words[$lower])) {
+              $word = $words[$lower];
+              $termId = $word['term_id'];
+              $reference = $this->papaya()->pageReferences->get(
+                $this->papaya()->request->languageIdentifier, $targetPageId
+              );
+              $pageTitle = isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title'];
+              $reference->setPageTitle(PapayaUtilFile::normalizeName($pageTitle, 100));
+              $parameters['term'] = $termId;
+              $reference->setParameters($parameters);
+              if ($this->_isFullPage) {
+                $this->_used[$termId][$lower] = TRUE;
+              }
+              $parentNode->appendElement(
+                'a',
+                [
+                  'href' => (string)$reference,
+                  'data-term-id' => $termId
+                ],
+                $part
+              );
+            } else {
+              $parentNode->appendText($part);
+            }
+          }
+        }
+      }
+      return $document->documentElement->saveFragment();
+    } catch (PapayaXmlException $e) {
+    }
+    return $content;
+  }
+
+  function appendTo(PapayaXmlElement $parent) {
+    if (count($this->_used) > 0) {
+      $glossary = $parent->appendElement('glossary');
+      $this->terms()->load(
+        [
+          'id' => array_keys($this->_used),
+          'language_id' => $this->papaya()->request->languageId
+        ]
+      );
+      foreach ($this->terms() as $term) {
+        $entry = $glossary->appendElement(
+          'term',
+          [
+            'id' => $term['id'],
+            'term' => $term['term']
+          ]
+        );
+        $entry->appendElement('explanation')->appendXml($term['explanation']);
+        $synonyms = $entry->appendElement('synonyms');
+        $this->appendWords($synonyms, 'synonym', $term['synonyms']);
+        $synonyms = $entry->appendElement('abbreviations');
+        $this->appendWords($synonyms, 'abbreviation', $term['abbreviations']);
+        $synonyms = $entry->appendElement('derivations');
+        $this->appendWords($synonyms, 'derivation', $term['derivations']);
+      }
+    }
+  }
+
+  private function appendWords(PapayaXmlElement $parent, $tagName, $string) {
+    preg_match_all(
+      '((?:^|,\\s*)(?<word>[^,]*))u', $string, $matches, PREG_SET_ORDER
+    );
+    foreach ($matches as $word) {
+      $parent->appendElement($tagName, [], trim($word['word']));
+    }
+  }
+
+  private function getGlossaryFromDomainOptions($default) {
+    $optionName = $this->content()->get('glossary_domain_option', '');
+    if (
+      !empty($optionsName) &&
+      ($domainConnector = $this->papaya()->plugins->get(self::DOMAIN_CONNECTOR_GUID))
+    ) {
+      if ($data = $domainConnector->loadValues($optionName)) {
+        $glossaryId = (int)$data[$optionName];
+        return $glossaryId > 0 ? $glossaryId : $default;
+      }
+    }
+    return $default;
   }
 
   public function glossaries(GlossaryContentGlossaries $glossaries = NULL) {
@@ -103,16 +352,43 @@ class GlossaryFilter
     return $this->_glossaries;
   }
 
-  function prepare($content, $options = []) {
-    // TODO: Implement prepare() method.
+
+  public function ignoreWords(GlossaryContentIgnores $ignoreWords = NULL) {
+    if (isset($ignoreWords)) {
+      $this->_ignoreWords = $ignoreWords;
+    } elseif (NULL == $this->_ignoreWords) {
+      $this->_ignoreWords = new GlossaryContentIgnores();
+      $this->_ignoreWords->papaya($this->papaya());
+      $this->_ignoreWords->activateLazyLoad(
+        [
+          'language_id' => $this->papaya()->request->languageId
+        ]
+      );
+    }
+    return $this->_ignoreWords;
   }
 
-  function applyTo($content) {
-    // TODO: Implement applyTo() method.
+  /**
+   * @param GlossaryContentTermWords $words
+   * @return GlossaryContentTermWords
+   */
+  public function words(GlossaryContentTermWords $words = NULL) {
+    if (isset($words)) {
+      $this->_words = $words;
+    } elseif (NULL === $this->_words) {
+      $this->_words = new GlossaryContentTermWords();
+      $this->_words->papaya($this->papaya());
+    }
+    return $this->_words;
   }
 
-  function appendTo(PapayaXmlElement $parent) {
-    // TODO: Implement appendTo() method.
+  public function terms(GlossaryContentTerms $terms = NULL) {
+    if (isset($terms)) {
+      $this->_terms = $terms;
+    } elseif (NULL == $this->_terms) {
+      $this->_terms = new GlossaryContentTerms();
+      $this->_terms->papaya($this->papaya());
+    }
+    return $this->_terms;
   }
-
 }

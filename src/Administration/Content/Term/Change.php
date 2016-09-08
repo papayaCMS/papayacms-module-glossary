@@ -106,6 +106,9 @@ class GlossaryAdministrationContentTermChange extends PapayaUiControlCommandDial
     $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
       new PapayaUiStringTranslated('Abbreviations'), 'abbreviations'
     );
+    $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
+      new PapayaUiStringTranslated('Derivations'), 'derivations'
+    );
     $dialog->fields[] = $group = new PapayaUiDialogFieldGroup(
       new PapayaUiStringTranslated('Texts')
     );

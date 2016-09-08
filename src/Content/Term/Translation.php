@@ -11,8 +11,9 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
     'explanation' => 'glossary_term_explanation',
     'source' => 'glossary_term_source',
     'links' => 'glossary_term_links',
-    'synonyms' => 'glossary_synonyms',
-    'abbreviations' => 'glossary_abbreviations'
+    'synonyms' => 'glossary_term_synonyms',
+    'abbreviations' => 'glossary_term_abbreviations',
+    'derivations' => 'glossary_term_derivations'
   ];
 
   protected $_tableName = GlossaryContentTables::TABLE_TERM_TRANSLATIONS;
@@ -53,7 +54,8 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
     $keys = [
       'term' => GlossaryContentTermWord::TYPE_TERM,
       'synonyms' => GlossaryContentTermWord::TYPE_SYNONYM,
-      'abbreviations' => GlossaryContentTermWord::TYPE_ABBREVIATION
+      'abbreviations' => GlossaryContentTermWord::TYPE_ABBREVIATION,
+      'derivations' => GlossaryContentTermWord::TYPE_DERIVATION
     ];
     $words = [];
     foreach ($keys as $key => $type) {

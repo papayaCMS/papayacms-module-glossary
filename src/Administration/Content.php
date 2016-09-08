@@ -129,7 +129,14 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
       if ($command->condition()->validate()) {
         $toolbar->elements[] = $button = new PapayaUiToolbarButton();
         $button->reference->setParameters(
-          ['mode' => 'terms', 'cmd' => 'delete', 'term_id' => $this->parameters()->get('term_id')],
+          [
+            'mode' => 'terms',
+            'cmd' => 'delete',
+            'term_id' => $this->parameters()->get('term_id'),
+            'offset' => $this->parameters()->get('offset', 0),
+            'search-for' => $this->parameters()->get('search-for', ''),
+            'glossary_id' => $this->parameters()->get('glossary_id', 0)
+          ],
           $this->parameterGroup()
         );
         $button->caption = new PapayaUiStringTranslated('Delete term');
@@ -142,7 +149,10 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
             [
               'mode' => 'terms',
               'cmd' => 'delete-translation',
-              'term_id' => $this->parameters()->get('term_id')
+              'term_id' => $this->parameters()->get('term_id'),
+              'offset' => $this->parameters()->get('offset', 0),
+              'search-for' => $this->parameters()->get('search-for', ''),
+              'glossary_id' => $this->parameters()->get('glossary_id', 0)
             ],
             $this->parameterGroup()
           );

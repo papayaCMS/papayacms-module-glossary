@@ -22,7 +22,7 @@ class datafilter_glossary extends base_datafilter {
 
   /**
   * base_glossary plugin object
-  * @var object $baseGlossary
+  * @var base_glossary $baseGlossary
   */
   var $glossaryObj = NULL;
 

@@ -6,7 +6,15 @@ class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
     'id' => 't.glossary_term_id',
     'language_id' => 'tt.language_id',
     'term' => 'tt.glossary_term',
-    'term_fallback' => 'term_fallback'
+    'term_fallback' => 'term_fallback',
+    'modified' => 'tt.glossary_term_modified',
+    'created' => 'tt.glossary_term_created',
+    'explanation' => 'tt.glossary_term_explanation',
+    'source' => 'tt.glossary_term_source',
+    'links' => 'tt.glossary_term_links',
+    'synonyms' => 'tt.glossary_term_synonyms',
+    'abbreviations' => 'tt.glossary_term_abbreviations',
+    'derivations' => 'tt.glossary_term_derivations'
   ];
 
   protected $_identifierProperties = ['id'];
@@ -42,7 +50,10 @@ class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
       $sql = "SELECT 
                 t.glossary_term_id, 
                 tt.glossary_term, tt.language_id, 
-                ttf.glossary_term term_fallback
+                ttf.glossary_term term_fallback,
+                tt.glossary_term_modified, tt.glossary_term_created, tt.glossary_term_explanation,
+                tt.glossary_term_source, tt.glossary_term_links, 
+                tt.glossary_term_synonyms, tt.glossary_term_abbreviations, tt.glossary_term_derivations
               FROM (%s AS t)
               LEFT JOIN %s AS tt ON (tt.glossary_term_id = t.glossary_term_id AND tt.language_id = '%d')
               LEFT JOIN %s AS ttf ON (ttf.glossary_term_id = t.glossary_term_id)
@@ -61,7 +72,10 @@ class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
       $sql = "SELECT 
                 t.glossary_term_id, 
                 tt.glossary_term, tt.language_id, 
-                ttf.glossary_term term_fallback
+                ttf.glossary_term term_fallback,
+                tt.glossary_term_modified, tt.glossary_term_created, tt.glossary_term_explanation,
+                tt.glossary_term_source, tt.glossary_term_links, 
+                tt.glossary_term_synonyms, tt.glossary_term_abbreviations, tt.glossary_term_derivations
               FROM (%s AS t)
               LEFT JOIN %s AS tt ON (tt.glossary_term_id = t.glossary_term_id AND tt.language_id = '%d')
               LEFT JOIN %s AS ttf ON (ttf.glossary_term_id = t.glossary_term_id)
