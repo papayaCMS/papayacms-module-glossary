@@ -59,12 +59,13 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
                 return $element['title'];
               } elseif (!empty($element['title_fallback'])) {
                 return $element['title_fallback'];
-              } elseif (empty($element['title'])) {
+              } else {
                 return '[#'.$element['id'].']';
               }
             }
           )
-        )
+        ),
+        FALSE
       );
       $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Search'));
     }

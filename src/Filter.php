@@ -105,24 +105,24 @@ class GlossaryFilter
       'glossary_word_types',
       new PapayaUiStringTranslatedList(
          [
-           GlossaryContentTermWord::TYPE_TERM => 'Term',
-           GlossaryContentTermWord::TYPE_SYNONYM => 'Synonym',
-           GlossaryContentTermWord::TYPE_ABBREVIATION => 'Abbreviation',
-           GlossaryContentTermWord::TYPE_DERIVATION => 'Derivation'
+           GlossaryContentTermWords::TYPE_TERM => 'Term',
+           GlossaryContentTermWords::TYPE_SYNONYM => 'Synonym',
+           GlossaryContentTermWords::TYPE_ABBREVIATION => 'Abbreviation',
+           GlossaryContentTermWords::TYPE_DERIVATION => 'Derivation'
          ]
       )
     );
     $field->setDefaultValue(
-      [GlossaryContentTermWord::TYPE_TERM, GlossaryContentTermWord::TYPE_DERIVATION]
+      [GlossaryContentTermWords::TYPE_TERM, GlossaryContentTermWords::TYPE_DERIVATION]
     );
     $dialog->fields[] = $field = new PapayaUiDialogFieldSelectCheckboxes(
       new PapayaUiStringTranslated('Link Url'),
       'glossary_word_url_text',
       new PapayaUiStringTranslatedList(
         [
-          GlossaryContentTermWord::TYPE_SYNONYM => 'Synonym',
-          GlossaryContentTermWord::TYPE_ABBREVIATION => 'Abbreviation',
-          GlossaryContentTermWord::TYPE_DERIVATION => 'Derivation'
+          GlossaryContentTermWords::TYPE_SYNONYM => 'Synonym',
+          GlossaryContentTermWords::TYPE_ABBREVIATION => 'Abbreviation',
+          GlossaryContentTermWords::TYPE_DERIVATION => 'Derivation'
         ]
       ),
       FALSE
@@ -185,16 +185,16 @@ class GlossaryFilter
         'normalized' => array_keys($words),
         'type' => $this->content()->get(
           'glossary_word_types',
-          [GlossaryContentTermWord::TYPE_TERM, GlossaryContentTermWord::TYPE_DERIVATION],
+          [GlossaryContentTermWords::TYPE_TERM, GlossaryContentTermWords::TYPE_DERIVATION],
           new PapayaFilterLogicalAnd(
             new PapayaFilterArraySize(1),
             new PapayaFilterArray(
               new PapayaFilterList(
                 [
-                  GlossaryContentTermWord::TYPE_TERM,
-                  GlossaryContentTermWord::TYPE_SYNONYM,
-                  GlossaryContentTermWord::TYPE_ABBREVIATION,
-                  GlossaryContentTermWord::TYPE_DERIVATION
+                  GlossaryContentTermWords::TYPE_TERM,
+                  GlossaryContentTermWords::TYPE_SYNONYM,
+                  GlossaryContentTermWords::TYPE_ABBREVIATION,
+                  GlossaryContentTermWords::TYPE_DERIVATION
                 ]
               )
             )

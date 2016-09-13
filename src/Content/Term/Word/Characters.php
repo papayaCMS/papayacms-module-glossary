@@ -1,6 +1,6 @@
 <?php
 
-class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
+class GlossaryContentTermWordCharacters extends PapayaDatabaseRecordsLazy {
 
   const TYPE_TERM = '1';
   const TYPE_SYNONYM = '2';
@@ -8,16 +8,12 @@ class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
   const TYPE_DERIVATION = '4';
 
   protected $_fields = [
-    'term_id' => 'w.glossary_term_id',
-    'term_title' => 'tt.glossary_term',
-    'language_id' => 'w.language_id',
-    'type' => 'w.glossary_word_type',
-    'word' => 'w.glossary_word',
-    'normalized' => 'w.normalized',
-    'character' => 'w.first_char'
+    'language' => 'w.language_id',
+    'character' => 'w.first_char',
+    'count' => 'word_count'
   ];
 
-  protected $_orderByProperties = ['word' => PapayaDatabaseInterfaceOrder::ASCENDING];
+  protected $_orderByProperties = ['character' => PapayaDatabaseInterfaceOrder::ASCENDING];
 
   protected $_tableName = GlossaryContentTables::TABLE_TERM_WORDS;
   protected $_tableTermTranslations = GlossaryContentTables::TABLE_TERM_TRANSLATIONS;
@@ -26,10 +22,10 @@ class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
   public function load($filter = [], $limit = NULL, $offset = NULL) {
     $databaseAccess = $this->getDatabaseAccess();
     if (empty($filter['glossary_id'])) {
-      $sql = "SELECT w.glossary_term_id, tt.glossary_term, 
-                     w.language_id, w.glossary_word_type, w.glossary_word, w.normalized, w.first_char 
+      $sql = "SELECT w.language_id, w.first_char, COUNT(*) word_count
                 FROM %s AS w
-               INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id) ";
+               INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id) 
+               GROUP BY w.first_char";
       $sql .= PapayaUtilString::escapeForPrintf(
         $this->_compileCondition($filter).$this->_compileOrderBy()
       );
@@ -46,8 +42,7 @@ class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
       }
       unset($filter['glossary_id']);
 
-      $sql = "SELECT w.glossary_term_id, tt.glossary_term, 
-                     w.language_id, w.glossary_word_type, w.glossary_word, w.normalized, w.first_char 
+      $sql = "SELECT w.language_id, w.first_char, COUNT(*) word_count
                 FROM %s AS w
                INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id)
                WHERE 
@@ -64,6 +59,7 @@ class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
         $glossaryFilter
       ];
     }
+    //$this->getDatabaseAccess()->debugNextQuery();
     return $this->_loadRecords($sql, $parameters, $limit, $offset, $this->_identifierProperties);
   }
 }

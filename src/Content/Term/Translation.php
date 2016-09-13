@@ -52,10 +52,10 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
 
   public function updateWords() {
     $keys = [
-      'term' => GlossaryContentTermWord::TYPE_TERM,
-      'synonyms' => GlossaryContentTermWord::TYPE_SYNONYM,
-      'abbreviations' => GlossaryContentTermWord::TYPE_ABBREVIATION,
-      'derivations' => GlossaryContentTermWord::TYPE_DERIVATION
+      'term' => GlossaryContentTermWords::TYPE_TERM,
+      'synonyms' => GlossaryContentTermWords::TYPE_SYNONYM,
+      'abbreviations' => GlossaryContentTermWords::TYPE_ABBREVIATION,
+      'derivations' => GlossaryContentTermWords::TYPE_DERIVATION
     ];
     $words = [];
     foreach ($keys as $key => $type) {
@@ -72,7 +72,10 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
 
   private function buildWordList(&$words, $string, $type) {
     preg_match_all(
-      '((?:^|,\\s*)(?<word>(?<first>[^,\\s]+)[^,]*))u', $string, $matches, PREG_SET_ORDER
+      '((?:^|,\\s*)(?<word>(?<firstWord>(?<firstChar>[a-zA-Z])?[^,\\s]+)[^,]*))u',
+      $string,
+      $matches,
+      PREG_SET_ORDER
     );
     foreach ($matches as $word) {
       $words[] = [
@@ -81,7 +84,10 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
         'type' => $type,
         'word' => trim(PapayaUtilArray::get($word, 'word', '')),
         'normalized' => PapayaUtilStringUtf8::toLowerCase(
-          PapayaUtilArray::get($word, 'first', '')
+          PapayaUtilArray::get($word, 'firstWord', '')
+        ),
+        'first_char' => PapayaUtilStringUtf8::toLowerCase(
+          PapayaUtilArray::get($word, 'firstChar', '0')
         )
       ];
     }
