@@ -74,6 +74,11 @@ class GlossaryPage
   private $_words;
 
   /**
+   * @var GlossaryContentTermTranslation
+   */
+  private $_term;
+
+  /**
    * @var int $_defaultPageLimit default limit for terms per page
    */
   private $_defaultPageLimit = 2;
@@ -111,7 +116,7 @@ class GlossaryPage
     $parent->appendElement('text')->appendXml(
       $filters->applyTo($this->content()->get('text', ''))
     );
-    $glossaryNode = $parent->appendElement('glossary', ['char' => $character]);
+
     $paging = new PapayaUiPagingCount(
       'page',
       $this->parameters()->get('page'),
@@ -123,8 +128,26 @@ class GlossaryPage
       );
     }
     $paging->itemsPerPage = $this->content()->get('steps', $this->_defaultPageLimit);
-    $glossaryNode->append($paging);
+
+    $parameters = [];
+    if (!empty($character)) {
+      $parameters['char'] = $character;
+    }
+    if (1 < ($pageOffset = $paging->getCurrentPage())) {
+      $parameters['page'] = $pageOffset;
+    };
+
+    $reference = clone $pageReference;
+    $reference->setParameters($parameters);
+    $glossaryNode = $parent->appendElement(
+      'glossary',
+      [
+        'char' => $character,
+        'href' => $reference
+      ]
+    );
     $groupsNode = $glossaryNode->appendElement('groups');
+    $groupsNode->append($paging);
     $groups = [];
     foreach ($this->characters() as $group) {
       if (empty($group['character'])) {
@@ -141,13 +164,6 @@ class GlossaryPage
         ]
       );
     }
-    $parameters = [];
-    if (!empty($character)) {
-      $parameters['char'] = $character;
-    }
-    if (1 < ($pageOffset = $paging->getCurrentPage())) {
-      $parameters['page'] = $pageOffset;
-    };
     $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
     foreach ($this->words() as $word) {
       if (isset($groups[$word['character']])) {
@@ -166,6 +182,8 @@ class GlossaryPage
           ]
         );
         $term->appendElement('title', [], $word['word']);
+        $term->appendElement('updated')->appendText(PapayaUtilDate::timestampToString($word['term_modified']));
+        $term->appendElement('explanation')->appendXml($word['term_explanation']);
       }
     }
     $parent->append($filters);
@@ -372,6 +390,21 @@ class GlossaryPage
       $this->_characters->papaya($this->papaya());
       $filter = [
         'language_id' => $this->papaya()->request->languageId
+      ];
+      $this->_characters->activateLazyLoad($filter);
+    }
+    return $this->_characters;
+  }
+
+  private function term(GlossaryContentTermTranslation $term) {
+    if (isset($term)) {
+      $this->_term = $term;
+    } elseif (NULL === $this->_term) {
+      $this->_term = new GlossaryContentTermTranslation();
+      $this->_term->papaya($this->papaya());
+      $filter = [
+        'language_id' => $this->papaya()->request->languageId,
+        'term_id' => $this->parameters()->get('term', 0)
       ];
       $this->_characters->activateLazyLoad($filter);
     }

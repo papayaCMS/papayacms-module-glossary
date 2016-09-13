@@ -10,6 +10,8 @@ class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
   protected $_fields = [
     'term_id' => 'w.glossary_term_id',
     'term_title' => 'tt.glossary_term',
+    'term_explanation' => 'tt.glossary_term_explanation',
+    'term_modified' => 'tt.glossary_term_modified',
     'language_id' => 'w.language_id',
     'type' => 'w.glossary_word_type',
     'word' => 'w.glossary_word',
@@ -26,7 +28,7 @@ class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
   public function load($filter = [], $limit = NULL, $offset = NULL) {
     $databaseAccess = $this->getDatabaseAccess();
     if (empty($filter['glossary_id'])) {
-      $sql = "SELECT w.glossary_term_id, tt.glossary_term, 
+      $sql = "SELECT w.glossary_term_id, tt.glossary_term, tt.glossary_term_explanation, tt.glossary_term_modified,
                      w.language_id, w.glossary_word_type, w.glossary_word, w.normalized, w.first_char 
                 FROM %s AS w
                INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id) ";
@@ -46,7 +48,7 @@ class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
       }
       unset($filter['glossary_id']);
 
-      $sql = "SELECT w.glossary_term_id, tt.glossary_term, 
+      $sql = "SELECT w.glossary_term_id, tt.glossary_term, tt.glossary_term_explanation, tt.glossary_term_modified, 
                      w.language_id, w.glossary_word_type, w.glossary_word, w.normalized, w.first_char 
                 FROM %s AS w
                INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id)
