@@ -31,7 +31,10 @@ class GlossaryPage
   PapayaPluginAppendable,
   PapayaPluginQuoteable,
   PapayaPluginEditable,
-  PapayaPluginCacheable {
+  PapayaPluginCacheable,
+  PapayaPluginAddressable {
+
+  const DOMAIN_CONNECTOR_GUID = '8ec0c5995d97c9c3cc9c237ad0dc6c0b';
 
   /**
    * @var PapayaPluginEditableContent
@@ -81,13 +84,19 @@ class GlossaryPage
   /**
    * @var int $_defaultPageLimit default limit for terms per page
    */
-  private $_defaultPageLimit = 2;
+  private $_defaultPageLimit = 20;
 
   private $_linkTypes = [
     GlossaryContentTermWords::TYPE_TERM => 'term',
     GlossaryContentTermWords::TYPE_SYNONYM => 'synonym',
     GlossaryContentTermWords::TYPE_DERIVATION => 'derivation',
     GlossaryContentTermWords::TYPE_ABBREVIATION => 'abbreviation',
+  ];
+  private $_linkTypeGroups = [
+    GlossaryContentTermWords::TYPE_TERM => 'terms',
+    GlossaryContentTermWords::TYPE_SYNONYM => 'synonyms',
+    GlossaryContentTermWords::TYPE_DERIVATION => 'derivations',
+    GlossaryContentTermWords::TYPE_ABBREVIATION => 'abbreviations',
   ];
 
   public function __construct($owner) {
@@ -101,7 +110,6 @@ class GlossaryPage
    * @param PapayaXmlElement $parent
    */
   public function appendTo(PapayaXmlElement $parent) {
-    $character = $this->getCharacter();
     $pageReference =$this->papaya()->pageReferences->get(
       $this->papaya()->request->pageId,
       $this->papaya()->request->languageIdentifier
@@ -116,6 +124,13 @@ class GlossaryPage
     $parent->appendElement('text')->appendXml(
       $filters->applyTo($this->content()->get('text', ''))
     );
+
+    $pageUrl = new PapayaUiReferencePage();
+    $pageUrl->load($this->papaya()->request);
+    $glossaryId = $this->getGlossaryId();
+    $termId = $this->parameters()->get('term', 0);
+    $character = $this->getCharacter();
+    $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
 
     $paging = new PapayaUiPagingCount(
       'page',
@@ -146,44 +161,96 @@ class GlossaryPage
         'href' => $reference
       ]
     );
-    $groupsNode = $glossaryNode->appendElement('groups');
-    $groupsNode->append($paging);
-    $groups = [];
-    foreach ($this->characters() as $group) {
-      if (empty($group['character'])) {
-        continue;
-      }
+
+    $filter = [
+      'language_id' => $this->papaya()->request->languageId,
+      'id' => $termId,
+      'term_id' => $termId,
+      'glossary_id' => $glossaryId
+    ];
+    $term = $this->term();
+    if ($term->load($filter)) {
       $reference = clone $pageReference;
-      $reference->setParameters(['char' => $group['character']]);
-      $groups[$group['character']] = $groupsNode->appendElement(
-        'group',
+      $reference->setPageTitle(PapayaUtilFile::normalizeName($term['term'], 100));
+      $reference->setParameters(
         [
-          'character' => $group['character'],
-          'count' => $group['count'],
+          'term' => $term['id']
+        ]
+      );
+      $termNode = $glossaryNode->appendElement(
+        'term',
+        [
+          'id' => $term['id'],
           'href' => $reference
         ]
       );
-    }
-    $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
-    foreach ($this->words() as $word) {
-      if (isset($groups[$word['character']])) {
-        /** @var PapayaXmlElement $group */
-        $group = $groups[$word['character']];
+      $termNode->appendElement('title', [], $term['term']);
+      $termNode->appendElement('explanation')->appendXml($term['explanation']);
+      $groupNodes = [];
+
+      $term->words()->load($filter);
+      foreach ($term->words() as $word) {
+        $type = $word['type'];
+        $groupTag = isset($this->_linkTypeGroups[$type]) ? $this->_linkTypeGroups[$type] : 'others';
+        if (isset($groupNodes[$groupTag])) {
+          $groupNode = $groupNodes[$groupTag];
+        } else {
+          $groupNodes[$groupTag] = $groupNode = $termNode->appendElement($groupTag);
+        }
         $parameters['term'] = $word['term_id'];
         $reference = clone $pageReference;
         $pageTitle = isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title'];
         $reference->setPageTitle(PapayaUtilFile::normalizeName($pageTitle, 100));
         $reference->setParameters($parameters);
-        $term = $group->appendElement(
-          'term',
+        $isSelected = ($pageUrl->getPageTitle() == PapayaUtilFile::normalizeName($word['word'], 100));
+        $groupNode->appendElement(
+          isset($this->_linkTypes[$type]) ? $this->_linkTypes[$type] : 'other',
           [
-            'type' => PapayaUtilArray::get($this->_linkTypes, $word['type'], ''),
-            'href' => $reference,
+            'selected' => $isSelected ? 'yes' : null,
+            'href' => $reference
+          ],
+          trim($word['word'])
+        );
+      };
+    } else {
+      $groupsNode = $glossaryNode->appendElement('groups');
+      $groupsNode->append($paging);
+      $groups = [];
+      foreach ($this->characters() as $group) {
+        if (empty($group['character'])) {
+          continue;
+        }
+        $reference = clone $pageReference;
+        $reference->setParameters(['char' => $group['character']]);
+        $groups[$group['character']] = $groupsNode->appendElement(
+          'group',
+          [
+            'character' => $group['character'],
+            'count' => $group['count'],
+            'href' => $reference
           ]
         );
-        $term->appendElement('title', [], $word['word']);
-        $term->appendElement('updated')->appendText(PapayaUtilDate::timestampToString($word['term_modified']));
-        $term->appendElement('explanation')->appendXml($word['term_explanation']);
+      }
+      foreach ($this->words() as $word) {
+        if (isset($groups[$word['character']])) {
+          /** @var PapayaXmlElement $group */
+          $group = $groups[$word['character']];
+          $parameters['term'] = $word['term_id'];
+          $reference = clone $pageReference;
+          $pageTitle = isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title'];
+          $reference->setPageTitle(PapayaUtilFile::normalizeName($pageTitle, 100));
+          $reference->setParameters($parameters);
+          $term = $group->appendElement(
+            'term',
+            [
+              'type' => PapayaUtilArray::get($this->_linkTypes, $word['type'], ''),
+              'href' => $reference,
+            ]
+          );
+          $term->appendElement('title', [], $word['word']);
+          $term->appendElement('updated')->appendText(PapayaUtilDate::timestampToString($word['term_modified']));
+          $term->appendElement('explanation')->appendXml($word['term_explanation']);
+        }
       }
     }
     $parent->append($filters);
@@ -389,26 +456,23 @@ class GlossaryPage
       $this->_characters = new GlossaryContentTermWordCharacters();
       $this->_characters->papaya($this->papaya());
       $filter = [
-        'language_id' => $this->papaya()->request->languageId
+        'language_id' => $this->papaya()->request->languageId,
+        'glossary_id' => $this->getGlossaryId(),
+        'type' => $this->getLinkTypes()
       ];
       $this->_characters->activateLazyLoad($filter);
     }
     return $this->_characters;
   }
 
-  private function term(GlossaryContentTermTranslation $term) {
+  public function term(GlossaryContentTermTranslation $term = NULL) {
     if (isset($term)) {
       $this->_term = $term;
     } elseif (NULL === $this->_term) {
       $this->_term = new GlossaryContentTermTranslation();
       $this->_term->papaya($this->papaya());
-      $filter = [
-        'language_id' => $this->papaya()->request->languageId,
-        'term_id' => $this->parameters()->get('term', 0)
-      ];
-      $this->_characters->activateLazyLoad($filter);
     }
-    return $this->_characters;
+    return $this->_term;
   }
 
   /**
@@ -423,23 +487,8 @@ class GlossaryPage
       $this->_words->papaya($this->papaya());
       $filter = [
         'language_id' => $this->papaya()->request->languageId,
-        'type' => $this->content()->get(
-          'glossary_word_types',
-          [GlossaryContentTermWords::TYPE_TERM, GlossaryContentTermWords::TYPE_DERIVATION],
-          new PapayaFilterLogicalAnd(
-            new PapayaFilterArraySize(1),
-            new PapayaFilterArray(
-              new PapayaFilterList(
-                [
-                  GlossaryContentTermWords::TYPE_TERM,
-                  GlossaryContentTermWords::TYPE_SYNONYM,
-                  GlossaryContentTermWords::TYPE_ABBREVIATION,
-                  GlossaryContentTermWords::TYPE_DERIVATION
-                ]
-              )
-            )
-          )
-        )
+        'glossary_id' => $this->getGlossaryId(),
+        'type' => $this->getLinkTypes()
       ];
       $character = $this->getCharacter();
       if (!empty($character)) {
@@ -455,6 +504,22 @@ class GlossaryPage
     return $this->_words;
   }
 
+  private function getGlossaryId() {
+    $glossaryId = $this->content()->get('glossary', 0);
+    $optionName = $this->content()->get('glossary_domain_option', '');
+    if (
+      !empty($optionsName) &&
+      ($domainConnector = $this->papaya()->plugins->get(self::DOMAIN_CONNECTOR_GUID))
+    ) {
+      if ($data = $domainConnector->loadValues($optionName)) {
+        if (($domainGlossaryId = (int)$data[$optionName]) > 0) {
+          $glossaryId = $domainGlossaryId;
+        }
+      }
+    }
+    return $glossaryId > 0 ? $glossaryId : NULL;
+  }
+
   private function getCharacter() {
     $character = PapayaUtilStringUtf8::toLowerCase(
       $this->parameters()->get(
@@ -462,10 +527,59 @@ class GlossaryPage
         '',
         new PapayaFilterLogicalAnd(
           new PapayaFilterStringLength(0, 1),
-          new PapayaFilterPcre('(^[a-z0])')
+          new PapayaFilterPcre('(^[\\pL0])')
         )
       )
     );
     return $character;
+  }
+
+  private function getLinkTypes() {
+    return $this->content()->get(
+      'glossary_word_types',
+      [GlossaryContentTermWords::TYPE_TERM, GlossaryContentTermWords::TYPE_DERIVATION],
+      new PapayaFilterLogicalAnd(
+        new PapayaFilterArraySize(1),
+        new PapayaFilterArray(
+          new PapayaFilterList(
+            [
+              GlossaryContentTermWords::TYPE_TERM,
+              GlossaryContentTermWords::TYPE_SYNONYM,
+              GlossaryContentTermWords::TYPE_ABBREVIATION,
+              GlossaryContentTermWords::TYPE_DERIVATION
+            ]
+          )
+        )
+      )
+    );
+  }
+
+  public function validateUrl(PapayaRequest $request) {
+    $termId = $this->parameters()->get('term', 0);
+    if ($termId > 0) {
+      $words = $this->term()->words();
+      $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
+      $filter = [
+        'language_id' => $this->papaya()->request->languageId,
+        'term_id' => $termId,
+        'glossary_id' => $this->getGlossaryId(),
+        'type' => $this->getLinkTypes()
+      ];
+      if ($termId && $words->load($filter)) {
+        $pageUrl = new PapayaUiReferencePage();
+        $pageUrl->load($this->papaya()->request);
+        foreach ($words as $word) {
+          $pageTitle = isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title'];
+          if ($pageUrl->getPageTitle() == PapayaUtilFile::normalizeName($pageTitle, 100)) {
+            return TRUE;
+          }
+        }
+        if (!empty($word['term_title'])) {
+          $pageUrl->setPageTitle(PapayaUtilFile::normalizeName($word['term_title'], 100));
+          return $pageUrl->get();
+        }
+      }
+    }
+    return FALSE;
   }
 }

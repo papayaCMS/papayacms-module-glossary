@@ -53,7 +53,7 @@ class GlossaryContentTermWords extends PapayaDatabaseRecordsLazy {
                 FROM %s AS w
                INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id)
                WHERE 
-                 glossary_term_id IN (
+                 w.glossary_term_id IN (
                    SELECT glossary_term_id FROM %s WHERE %s
                  ) ";
       $sql .= PapayaUtilString::escapeForPrintf(

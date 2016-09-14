@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/papayaCMS/papayacms-core.git",
-                "reference": "685344483af76ecad1cea11cf825d964f0d7887c"
+                "reference": "8c4f0f7a851a213c3f08775a7718d8a2055d2be4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/papayaCMS/papayacms-core/zipball/685344483af76ecad1cea11cf825d964f0d7887c",
-                "reference": "685344483af76ecad1cea11cf825d964f0d7887c",
+                "url": "https://api.github.com/repos/papayaCMS/papayacms-core/zipball/8c4f0f7a851a213c3f08775a7718d8a2055d2be4",
+                "reference": "8c4f0f7a851a213c3f08775a7718d8a2055d2be4",
                 "shasum": ""
             },
             "require-dev": {
@@ -44,7 +44,7 @@
             ],
             "description": "papaya CMS core framework",
             "homepage": "http://www.papaya-cms.com/",
-            "time": "2016-09-08 14:45:18"
+            "time": "2016-09-14 13:43:39"
         }
     ],
     "packages-dev": [

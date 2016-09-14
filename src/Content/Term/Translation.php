@@ -66,13 +66,14 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
       'term_id' => $this['id']
     ];
     if ($this->words()->truncate($filter)) {
+      var_dump($words);
       $this->words()->insert($words);
     }
   }
 
   private function buildWordList(&$words, $string, $type) {
     preg_match_all(
-      '((?:^|,\\s*)(?<word>(?<firstWord>(?<firstChar>[a-zA-Z])?[^,\\s]+)[^,]*))u',
+      '((?:^|,\\s*)(?<word>(?<firstWord>(?<firstChar>\\p{L})?[^,\\s]+)[^,]*))u',
       $string,
       $matches,
       PREG_SET_ORDER
@@ -86,7 +87,7 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
         'normalized' => PapayaUtilStringUtf8::toLowerCase(
           PapayaUtilArray::get($word, 'firstWord', '')
         ),
-        'first_char' => PapayaUtilStringUtf8::toLowerCase(
+        'character' => PapayaUtilStringUtf8::toLowerCase(
           PapayaUtilArray::get($word, 'firstChar', '0')
         )
       ];

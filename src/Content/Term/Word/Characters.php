@@ -8,9 +8,10 @@ class GlossaryContentTermWordCharacters extends PapayaDatabaseRecordsLazy {
   const TYPE_DERIVATION = '4';
 
   protected $_fields = [
-    'language' => 'w.language_id',
+    'language_id' => 'w.language_id',
     'character' => 'w.first_char',
-    'count' => 'word_count'
+    'count' => 'word_count',
+    'type' => 'w.glossary_word_type'
   ];
 
   protected $_orderByProperties = ['character' => PapayaDatabaseInterfaceOrder::ASCENDING];
@@ -24,10 +25,9 @@ class GlossaryContentTermWordCharacters extends PapayaDatabaseRecordsLazy {
     if (empty($filter['glossary_id'])) {
       $sql = "SELECT w.language_id, w.first_char, COUNT(*) word_count
                 FROM %s AS w
-               INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id) 
-               GROUP BY w.first_char";
+               INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id) ";
       $sql .= PapayaUtilString::escapeForPrintf(
-        $this->_compileCondition($filter).$this->_compileOrderBy()
+        $this->_compileCondition($filter)." GROUP BY w.first_char ".$this->_compileOrderBy()
       );
       $parameters = [
         $databaseAccess->getTableName($this->_tableName),
@@ -46,11 +46,11 @@ class GlossaryContentTermWordCharacters extends PapayaDatabaseRecordsLazy {
                 FROM %s AS w
                INNER JOIN %s AS tt ON (tt.glossary_term_id = w.glossary_term_id AND tt.language_id = w.language_id)
                WHERE 
-                 glossary_term_id IN (
+                 w.glossary_term_id IN (
                    SELECT glossary_term_id FROM %s WHERE %s
                  ) ";
       $sql .= PapayaUtilString::escapeForPrintf(
-        $this->_compileCondition($filter, 'AND').$this->_compileOrderBy()
+        $this->_compileCondition($filter, 'AND')." GROUP BY w.first_char ".$this->_compileOrderBy()
       );
       $parameters = [
         $databaseAccess->getTableName($this->_tableName),
@@ -59,7 +59,6 @@ class GlossaryContentTermWordCharacters extends PapayaDatabaseRecordsLazy {
         $glossaryFilter
       ];
     }
-    //$this->getDatabaseAccess()->debugNextQuery();
     return $this->_loadRecords($sql, $parameters, $limit, $offset, $this->_identifierProperties);
   }
 }
