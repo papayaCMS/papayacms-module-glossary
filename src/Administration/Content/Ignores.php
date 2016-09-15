@@ -4,6 +4,10 @@ class GlossaryAdministrationContentIgnores extends PapayaUiControlCommandDialogD
 
   private $_action = self::ACTION_SAVE;
 
+  /**
+   * GlossaryAdministrationContentIgnores constructor.
+   * @param int $action
+   */
   public function __construct($action) {
     parent::__construct(new GlossaryContentIgnore(), $this->_action = $action);
   }
