@@ -5,7 +5,7 @@
     <field name="glossary_term_id" type="integer" size="4" null="yes"/>
     <field name="language_id" type="integer" size="4" null="yes"/>
     <field name="glossary_word" type="string" size="65535" null="yes"/>
-    <field name="normalized" type="string" size="65535" null="yes"/>
+    <field name="normalized" type="string" size="200" null="yes"/>
     <field name="first_char" type="string" size="1" null="yes"/>
   </fields>
   <keys>
@@ -15,8 +15,8 @@
     <key name="glossary_word_type">
       <field>glossary_word_type</field>
     </key>
-    <key name="glossary__term_id">
-      <field>glossary__term_id</field>
+    <key name="glossary_term_id">
+      <field>glossary_term_id</field>
     </key>
     <key name="first_char">
       <field>first_char</field>
