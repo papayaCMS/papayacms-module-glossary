@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<table name="glossary_term_links" prefix="yes">
+  <fields>
+    <field name="glossary_id" type="integer" size="4" null="no"/>
+    <field name="glossary_term_id" type="integer" size="4" null="no"/>
+  </fields>
+  <keys>
+    <primary-key>
+      <field>glossary_id</field>
+      <field>glossary_term_id</field>
+    </primary-key>
+    <key name="glossary_term_id">
+      <field>glossary_term_id</field>
+    </key>
+  </keys>
+</table>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<table name="glossary_term_words" prefix="yes">
+  <fields>
+    <field name="glossary_word_type" type="integer" size="4" null="yes"/>
+    <field name="glossary_term_id" type="integer" size="4" null="yes"/>
+    <field name="language_id" type="integer" size="4" null="yes"/>
+    <field name="glossary_word" type="string" size="65535" null="yes"/>
+    <field name="normalized" type="string" size="65535" null="yes"/>
+    <field name="first_char" type="string" size="1" null="yes"/>
+  </fields>
+  <keys>
+    <key name="language_id">
+      <field>language_id</field>
+    </key>
+    <key name="glossary_word_type">
+      <field>glossary_word_type</field>
+    </key>
+    <key name="glossary__term_id">
+      <field>glossary__term_id</field>
+    </key>
+    <key name="first_char">
+      <field>first_char</field>
+    </key>
+    <key name="normalized">
+      <field>normalized</field>
+    </key>
+  </keys>
+</table>

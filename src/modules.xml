@@ -4,11 +4,7 @@
   <description>Create and manage a list of technical terms and their definitions.</description>
   <prefix>Glossary</prefix>
   <modules>
-    <module type="admin" guid="f2e4ea016d30de96fe7c8bb09f4abe27" name="Glossary" class="edmodule_glossary" file="edmodule_glossary.php" glyph="glossary.png">Glossary administration module.</module>
-    <module type="box" guid="4ac3e1547f585843537791e7c1dad6d4" name="Glossary On/Off" class="actionbox_glossaryonoff" file="actbox_glossaryonoff.php">A box that displays a link to switch on/off automatic linking of glossary terms.</module>
-    <module type="connector" guid="d69f7409d3616a11795a7005dbddce24" name="Glossary Connector" class="PapayaModuleCommercialGlossaryConnector" file="connector.php">Glossary Connector</module>
-
-    <module type="admin" guid="f2e4ea016d30de96fe7c8bb09f4abe28" name="Glossary2" class="edmodule_glossary2" file="edmodule_glossary2.php" glyph="glossary.png">Glossary administration module.</module>
+    <module type="admin" guid="f2e4ea016d30de96fe7c8bb09f4abe28" name="Glossary2" class="edmodule_glossary" file="edmodule_glossary.php" glyph="glossary.png">Glossary administration module.</module>
     <module type="page" guid="a7b5da325a79ae7e6dbb83dbfac02cb1" name="Glossary Page" class="GlossaryPage" file="Page.php">Page module that displays an alphabetical list of glossary entries. The user can click on a term to see the definition of the term.</module>
     <module type="datafilter" guid="f89c43495ec29145b8012c28f3ce96fb" name="Glossary data filter" class="GlossaryFilter" file="Filter.php">Data filter used to link glossary entries in articles.</module>
   </modules>
@@ -16,9 +12,9 @@
     <table name="glossary"/>
     <table name="glossary_trans"/>
     <table name="glossary_ignorewords"/>
-    <table name="glossaryentries"/>
-    <table name="glossaryentries_trans"/>
-
+    <table name="glossary_term_links"/>
+    <table name="glossary_term_translations"/>
+    <table name="glossary_term_words"/>
     <table name="glossary_terms"/>
   </tables>
 </modulegroup>

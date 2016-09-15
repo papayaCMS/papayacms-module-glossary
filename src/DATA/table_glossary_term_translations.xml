@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<table name="glossary_term_translations" prefix="yes">
+  <fields>
+    <field name="glossary_term_id" type="integer" size="4" null="no"/>
+    <field name="language_id" type="integer" size="4" null="no"/>
+    <field name="glossary_term" type="string" size="200" null="no"/>
+    <field name="glossary_term_explanation" type="string" size="65535" null="no"/>
+    <field name="glossary_term_source" type="string" size="65535" null="no"/>
+    <field name="glossary_term_links" type="string" size="65535" null="no"/>
+    <field name="glossary_term_synonyms" type="string" size="1000" null="no"/>
+    <field name="glossary_term_derivations" type="string" size="1000" null="no"/>
+    <field name="glossary_term_abbreviations" type="string" size="1000" null="no"/>
+    <field name="glossary_term_modified" type="integer" size="4" null="no"/>
+    <field name="glossary_term_created" type="integer" size="4" null="no"/>
+  </fields>
+  <keys>
+    <primary-key>
+      <field>glossary_term_id</field>
+      <field>language_id</field>
+    </primary-key>
+  </keys>
+</table>
