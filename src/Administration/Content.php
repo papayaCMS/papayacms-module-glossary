@@ -23,6 +23,9 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     $commands['change'] = new GlossaryAdministrationContentTermChange();
     $commands['delete'] = new GlossaryAdministrationContentTermDelete();
     $commands['delete-translation'] = new GlossaryAdministrationContentTermTranslationDelete();
+    $commands['reindex'] = new GlossaryAdministrationContentTermReindex();
+    $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_INDEX]);
+
 
     $modes['glossaries'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
     $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_GLOSSARIES]);
@@ -159,6 +162,18 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
           $button->caption = new PapayaUiStringTranslated('Delete term translation');
           $button->image = 'actions-phrase-delete';
         }
+      }
+      $toolbar->elements[] = new PapayaUiToolbarSeparator();
+      /** @var PapayaUiControlCommand $command */
+      $command = $this->commands()['terms']['reindex'];
+      if ($command->condition()->validate()) {
+        $toolbar->elements[] = $button = new PapayaUiToolbarButton();
+        $button->reference->setParameters(
+          ['mode' => 'terms', 'cmd' => 'reindex'],
+          $this->parameterGroup()
+        );
+        $button->caption = new PapayaUiStringTranslated('Rebuild index');
+        $button->image = 'actions-tree-scan';
       }
       break;
     }

@@ -51,46 +51,25 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
   }
 
   public function updateWords() {
-    $keys = [
-      'term' => GlossaryContentTermWords::TYPE_TERM,
-      'synonyms' => GlossaryContentTermWords::TYPE_SYNONYM,
-      'abbreviations' => GlossaryContentTermWords::TYPE_ABBREVIATION,
-      'derivations' => GlossaryContentTermWords::TYPE_DERIVATION
-    ];
-    $words = [];
-    foreach ($keys as $key => $type) {
-      $this->buildWordList($words, $this[$key], $type);
-    }
     $filter = [
       'language_id' => $this['language_id'],
       'term_id' => $this['id']
     ];
-    if ($this->words()->truncate($filter)) {
-      var_dump($words);
-      $this->words()->insert($words);
-    }
-  }
-
-  private function buildWordList(&$words, $string, $type) {
-    preg_match_all(
-      '((?:^|,\\s*)(?<word>(?<firstWord>(?<firstChar>\\p{L})?[^,\\s]+)[^,]*))u',
-      $string,
-      $matches,
-      PREG_SET_ORDER
+    $words = new PapayaIteratorCallback(
+      new GlossaryContentTermWordList(
+        [
+          GlossaryContentTermWords::TYPE_TERM => $this['term'],
+          GlossaryContentTermWords::TYPE_SYNONYM => $this['synonyms'],
+          GlossaryContentTermWords::TYPE_ABBREVIATION => $this['abbreviations'],
+          GlossaryContentTermWords::TYPE_DERIVATION => $this['derivations']
+        ]
+      ),
+      function($record) use ($filter) {
+        return array_merge($record, $filter);
+      }
     );
-    foreach ($matches as $word) {
-      $words[] = [
-        'language_id' => $this['language_id'],
-        'term_id' => $this['id'],
-        'type' => $type,
-        'word' => trim(PapayaUtilArray::get($word, 'word', '')),
-        'normalized' => PapayaUtilStringUtf8::toLowerCase(
-          PapayaUtilArray::get($word, 'firstWord', '')
-        ),
-        'character' => PapayaUtilStringUtf8::toLowerCase(
-          PapayaUtilArray::get($word, 'firstChar', '0')
-        )
-      ];
+    if ($this->words()->truncate($filter)) {
+      $this->words()->insert($words);
     }
   }
 
