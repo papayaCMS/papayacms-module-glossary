@@ -242,7 +242,7 @@ class GlossaryFilter
           return PapayaUtilStringUtf8::length($two) - PapayaUtilStringUtf8::length($one);
         }
       );
-      $pattern = '(('.implode('|', array_map('preg_quote', array_keys($words))).'))i';
+      $pattern = '(\b('.implode('|', array_map('preg_quote', array_keys($words))).')\b)iu';
       $document = new PapayaXmlDocument();
       $document->appendElement('content')->appendXml($content);
       foreach ($document->xpath()->evaluate('//text()[not(ancestor::a)]') as $textNode) {
