@@ -141,9 +141,14 @@ class GlossaryFilter
     );
     $group->fields[] = new PapayaUiDialogFieldInputPage(
       new PapayaUiStringTranslated('Glossary Page Id'),
-      'glossary_page_id',
-      NULL,
-      TRUE
+      'glossary_page_id'
+    );
+    $group->fields[] = new PapayaUiDialogFieldInput(
+      new PapayaUiStringTranslated('Glossary Link Class'),
+      'glossary_link_class',
+      100,
+      'glossaryTermLink',
+      new PapayaFilterPcre('(^[a-zA-Z-]+$)')
     );
     $group->fields[] = new PapayaUiDialogFieldSelectRadio(
       new PapayaUiStringTranslated('Backlink Parameters'),
@@ -215,6 +220,7 @@ class GlossaryFilter
     }
     try {
       $targetPageId = $this->content()->get('glossary_page_id', 0);
+      $linkClassName = $this->content()->get('glossary_link_class', 'glossaryTermLink');
       if ($this->content()->get('add_refpage', 0)) {
         $parameters = [
           'refpage' => $this->papaya()->request->pageId
@@ -270,6 +276,7 @@ class GlossaryFilter
                 'a',
                 [
                   'href' => (string)$reference,
+                  'class' => $linkClassName,
                   'data-term-id' => $termId
                 ],
                 $part
