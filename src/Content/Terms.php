@@ -21,6 +21,7 @@ class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
 
   protected $_orderByProperties = [
     'term' => PapayaDatabaseInterfaceOrder::ASCENDING,
+    'term_fallback' => PapayaDatabaseInterfaceOrder::ASCENDING,
     'id' => PapayaDatabaseInterfaceOrder::ASCENDING
   ];
 
