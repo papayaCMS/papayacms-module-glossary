@@ -43,7 +43,8 @@ class edmodule_glossary extends base_module {
     GlossaryAdministration::PERMISSION_MANAGE_GLOSSARIES => 'Create/Edit glossaries',
     GlossaryAdministration::PERMISSION_MANAGE_TERMS => 'Create/Edit glossary entries',
     GlossaryAdministration::PERMISSION_MANAGE_IGNORE => 'Create/Edit glossary ignorewords',
-    GlossaryAdministration::PERMISSION_MANAGE_INDEX => 'Force index update'
+    GlossaryAdministration::PERMISSION_MANAGE_INDEX => 'Force index update',
+    GlossaryAdministration::PERMISSION_EXPORT => 'Export terms as CSV'
   );
 
   function execModule() {

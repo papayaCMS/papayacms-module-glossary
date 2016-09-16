@@ -30,7 +30,7 @@ class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
   protected $_tableTermGlossaries = GlossaryContentTables::TABLE_TERM_GLOSSARY_LINKS;
 
   /**
-   * Load pages defined by filter conditions.
+   * Load terms defined by filter conditions.
    *
    * @param array $filter
    * @param NULL|integer $limit
@@ -59,7 +59,7 @@ class GlossaryContentTerms extends PapayaDatabaseRecordsLazy {
               LEFT JOIN %s AS tt ON (tt.glossary_term_id = t.glossary_term_id AND tt.language_id = '%d')
               LEFT JOIN %s AS ttf ON (ttf.glossary_term_id = t.glossary_term_id)
               WHERE t.glossary_term_id IN (SELECT glossary_term_id FROM %s WHERE glossary_id = %d)
-                   ".PapayaUtilString::escapeForPrintf($this->_compileCondition($filter))."
+                   ".PapayaUtilString::escapeForPrintf($this->_compileCondition($filter, 'AND'))."
                    ".$this->_compileOrderBy();
       $parameters = array(
         $databaseAccess->getTableName($this->_tableTerms),

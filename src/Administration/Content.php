@@ -25,6 +25,8 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     $commands['delete-translation'] = new GlossaryAdministrationContentTermTranslationDelete();
     $commands['reindex'] = new GlossaryAdministrationContentTermReindex();
     $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_INDEX]);
+    $commands['export'] = new GlossaryAdministrationContentTermExport();
+    $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_EXPORT]);
 
 
     $modes['glossaries'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
@@ -174,6 +176,22 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
         );
         $button->caption = new PapayaUiStringTranslated('Rebuild index');
         $button->image = 'actions-tree-scan';
+      }
+      /** @var PapayaUiControlCommand $command */
+      $command = $this->commands()['terms']['export'];
+      if ($command->condition()->validate()) {
+        $toolbar->elements[] = $button = new PapayaUiToolbarButton();
+        $button->reference->setParameters(
+          [
+            'mode' => 'terms',
+            'cmd' => 'export',
+            'search-for' => $this->parameters()->get('search-for', ''),
+            'glossary_id' => $this->parameters()->get('glossary_id', 0)
+          ],
+          $this->parameterGroup()
+        );
+        $button->caption = new PapayaUiStringTranslated('Export CSV');
+        $button->image = 'actions-download';
       }
       break;
     }

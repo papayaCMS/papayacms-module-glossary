@@ -7,6 +7,7 @@ class GlossaryAdministration extends PapayaAdministrationPage {
   const PERMISSION_MANAGE_TERMS = 3;
   const PERMISSION_MANAGE_IGNORE = 4;
   const PERMISSION_MANAGE_INDEX = 5;
+  const PERMISSION_EXPORT = 6;
 
   protected $_parameterGroup = 'glossary';
 
