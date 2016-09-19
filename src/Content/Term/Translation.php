@@ -23,6 +23,11 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
    */
   private $_words;
 
+  /**
+   * @var GlossaryContentTermTranslations
+   */
+  private $_translations;
+
   protected function _createKey() {
     return new PapayaDatabaseRecordKeyFields($this, $this->_tableName, ['id', 'language_id']);
   }
@@ -85,5 +90,20 @@ class GlossaryContentTermTranslation extends PapayaDatabaseRecordLazy {
       $this->_words->papaya($this->papaya());
     }
     return $this->_words;
+  }
+
+  public function translations(GlossaryContentTermTranslations $translations = NULL) {
+    if (isset($translations)) {
+      $this->_translations = $translations;
+    } elseif (NULL === $this->_translations) {
+      $this->_translations = new GlossaryContentTermTranslations();
+      $this->_translations->papaya($this->papaya());
+      $this->_translations->activateLazyLoad(
+        [
+          'id' => (int)$this['id']
+        ]
+      );
+    }
+    return $this->_translations;
   }
 }

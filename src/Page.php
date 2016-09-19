@@ -131,6 +131,7 @@ class GlossaryPage
     $termId = $this->parameters()->get('term', 0);
     $character = $this->getCharacter();
     $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
+    $outputMode = $this->parameters()->get('mode', NULL, new PapayaFilterList(['flat']));
 
     $paging = new PapayaUiPagingCount(
       'page',
@@ -212,7 +213,36 @@ class GlossaryPage
           trim($word['word'])
         );
       };
+      $translationsNode = $termNode->appendElement('translations');
+      foreach ($term->translations() as $translation) {
+        $language = $this->papaya()->languages->getLanguage($translation['language_id']);
+        $translationsNode->appendElement(
+          'translation',
+          [
+            'language' => $language['code'],
+            'language-title' => $language['title']
+          ]
+        );
+      }
     } else {
+      $modes = ['all' => 'flat', 'paged' => NULL];
+      foreach ($modes as $relation => $mode) {
+        if ($outputMode != $mode) {
+          $reference = clone $pageReference;
+          $reference->setParameters(
+            [
+              'mode' => $mode
+            ]
+          );
+          $glossaryNode->appendElement(
+            'link',
+            [
+              'rel' => $relation,
+              'href' => $reference
+            ]
+          );
+        }
+      }
       $groupsNode = $glossaryNode->appendElement('groups');
       $groupsNode->append($paging);
       $groups = [];
@@ -221,7 +251,12 @@ class GlossaryPage
           continue;
         }
         $reference = clone $pageReference;
-        $reference->setParameters(['char' => $group['character']]);
+        $reference->setParameters(
+          [
+            'char' => $group['character'],
+            'mode' => $outputMode
+          ]
+        );
         $groups[$group['character']] = $groupsNode->appendElement(
           'group',
           [
@@ -498,11 +533,15 @@ class GlossaryPage
         $filter['character,contains'] = $character.'*';
       }
       $pageSize = $this->content()->get('steps', $this->_defaultPageLimit, new PapayaFilterInteger(1));
-      $this->_words->activateLazyLoad(
-        $filter,
-        $pageSize,
-        ($this->parameters()->get('page', 1, new PapayaFilterInteger(1)) - 1) * $pageSize
-      );
+      if ($this->parameters()->get('mode', '') == 'flat') {
+        $this->_words->activateLazyLoad($filter);
+      } else {
+        $this->_words->activateLazyLoad(
+          $filter,
+          $pageSize,
+          ($this->parameters()->get('page', 1, new PapayaFilterInteger(1)) - 1) * $pageSize
+        );
+      }
     }
     return $this->_words;
   }
