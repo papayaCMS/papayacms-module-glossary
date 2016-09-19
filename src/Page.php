@@ -157,7 +157,7 @@ class GlossaryPage
     $glossaryNode = $parent->appendElement(
       'glossary',
       [
-        'char' => $character,
+        'character' => $character,
         'href' => $reference
       ]
     );
@@ -206,7 +206,7 @@ class GlossaryPage
         $groupNode->appendElement(
           isset($this->_linkTypes[$type]) ? $this->_linkTypes[$type] : 'other',
           [
-            'selected' => $isSelected ? 'yes' : null,
+            'selected' => $isSelected ? 'true' : null,
             'href' => $reference
           ],
           trim($word['word'])
@@ -230,6 +230,9 @@ class GlossaryPage
             'href' => $reference
           ]
         );
+        if ($group['character'] == $character) {
+          $groups[$group['character']]->setAttribute('selected', 'true');
+        }
       }
       foreach ($this->words() as $word) {
         if (isset($groups[$word['character']])) {
