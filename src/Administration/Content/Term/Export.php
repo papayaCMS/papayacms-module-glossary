@@ -16,8 +16,8 @@ class GlossaryAdministrationContentTermExport
   public function appendTo(PapayaXmlElement $parent) {
     $columns = $this->terms()->mapping()->getProperties();
     $response = $this->papaya()->response;
-    $response->setContentType('text/plain');
-    //$response->headers()->set('Content-Disposition', 'attachment; filename="glossary_export.csv"');
+    $response->setContentType('text/csv');
+    $response->headers()->set('Content-Disposition', 'attachment; filename="glossary_export.csv"');
     $response->content(
       new PapayaResponseContentList(
         new PapayaIteratorCallback(
