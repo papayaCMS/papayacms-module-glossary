@@ -67,6 +67,14 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
         ),
         FALSE
       );
+      $dialog->buttons[] = $button = new PapayaUiDialogButtonLink(
+        new PapayaUiStringTranslated('Clear'),
+        PapayaUiDialogButton::ALIGN_LEFT
+      );
+      $button->reference()->setParameters(
+        ['mode' => 'terms'],
+        $this->parameterGroup()
+      );
       $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Search'));
     }
     return $this->_filterDialog;
