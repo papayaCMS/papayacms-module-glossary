@@ -28,7 +28,14 @@ class GlossaryAdministrationContentTermExport
               function(array $row) use ($columns) {
                 $result = [];
                 foreach ($columns as $name) {
-                  $result[$name] = (string)$row[$name];
+                  switch ($name) {
+                  case 'created' :
+                  case 'modified' :
+                    $result[$name] = PapayaUtilDate::timestampToString($row[$name], TRUE, TRUE, FALSE);
+                    break;
+                  default:
+                    $result[$name] = (string)$row[$name];
+                  }
                 }
                 return $result;
               }
