@@ -567,10 +567,7 @@ class GlossaryPage
       $this->parameters()->get(
         'char',
         '',
-        new PapayaFilterLogicalAnd(
-          new PapayaFilterStringLength(0, 1),
-          new PapayaFilterPcre('(^[\\pL0])')
-        )
+        new PapayaFilterPcre('(^[\\p{L}0])u')
       )
     );
     return $character;
