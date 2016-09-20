@@ -219,7 +219,9 @@ class GlossaryPage
       $translationsNode = $termNode->appendElement('translations');
       foreach ($term->translations() as $translation) {
         $reference = clone $pageReference;
-        $reference->setPageLanguage($translation['language_id']);
+        $reference->setPageLanguage(
+          $this->papaya()->languages[$translation['language_id']]['identifier']
+        );
         $reference->setParameters(
           ['term' => $termId]
         );
