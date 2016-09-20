@@ -172,7 +172,7 @@ class GlossaryPage
     $term = $this->term();
     if ($term->load($filter)) {
       $reference = clone $pageReference;
-      $reference->setPageTitle(PapayaUtilFile::normalizeName($term['term'], 100));
+      $reference->setPageTitle($term['term']);
       $reference->setParameters(
         [
           'term' => $term['id']
@@ -201,9 +201,12 @@ class GlossaryPage
         $parameters['term'] = $word['term_id'];
         $reference = clone $pageReference;
         $pageTitle = isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title'];
-        $reference->setPageTitle(PapayaUtilFile::normalizeName($pageTitle, 100));
+        $reference->setPageTitle($pageTitle);
         $reference->setParameters($parameters);
-        $isSelected = ($pageUrl->getPageTitle() == PapayaUtilFile::normalizeName($word['word'], 100));
+        $isSelected = (
+          $pageUrl->getPageTitle() ==
+          PapayaUtilFile::normalizeName($word['word'], 100, $this->papaya()->request->languageIdentifier)
+        );
         $groupNode->appendElement(
           isset($this->_linkTypes[$type]) ? $this->_linkTypes[$type] : 'other',
           [
@@ -220,7 +223,7 @@ class GlossaryPage
         $reference->setParameters(
           ['term' => $termId]
         );
-        $reference->setPageTitle(PapayaUtilFile::normalizeName($translation['term'], 100));
+        $reference->setPageTitle($translation['term']);
         $language = $this->papaya()->languages->getLanguage($translation['language_id']);
         $translationsNode->appendElement(
           'translation',
@@ -283,8 +286,7 @@ class GlossaryPage
           $group = $groups[$word['character']];
           $parameters['term'] = $word['term_id'];
           $reference = clone $pageReference;
-          $pageTitle = isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title'];
-          $reference->setPageTitle(PapayaUtilFile::normalizeName($pageTitle, 100));
+          $reference->setPageTitle(isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title']);
           $reference->setParameters($parameters);
           $term = $group->appendElement(
             'term',
@@ -601,6 +603,10 @@ class GlossaryPage
     );
   }
 
+  /**
+   * @param PapayaRequest $request
+   * @return bool|string
+   */
   public function validateUrl(PapayaRequest $request) {
     $termId = $this->parameters()->get('term', 0);
     if ($termId > 0) {
@@ -617,12 +623,16 @@ class GlossaryPage
         $pageUrl->load($this->papaya()->request);
         foreach ($words as $word) {
           $pageTitle = isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title'];
-          if ($pageUrl->getPageTitle() == PapayaUtilFile::normalizeName($pageTitle, 100)) {
+          $pageTitleNormalized = PapayaUtilFile::normalizeName(
+            $pageTitle, 100, $this->papaya()->request->languageIdentifier
+          );
+          if ($pageUrl->getPageTitle() == $pageTitleNormalized) {
             return TRUE;
           }
         }
         if (!empty($word['term_title'])) {
-          $pageUrl->setPageTitle(PapayaUtilFile::normalizeName($word['term_title'], 100));
+          $pageUrl->setPageTitle($word['term_title']);
+          $pageUrl->setParameters($this->papaya()->request->getParameters(PapayaRequest::SOURCE_QUERY));
           return $pageUrl->get();
         }
       }
