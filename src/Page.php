@@ -215,14 +215,22 @@ class GlossaryPage
       };
       $translationsNode = $termNode->appendElement('translations');
       foreach ($term->translations() as $translation) {
+        $reference = clone $pageReference;
+        $reference->setPageLanguage($translation['language_id']);
+        $reference->setParameters(
+          ['term' => $termId]
+        );
+        $reference->setPageTitle(PapayaUtilFile::normalizeName($translation['term'], 100));
         $language = $this->papaya()->languages->getLanguage($translation['language_id']);
         $translationsNode->appendElement(
           'translation',
           [
             'language' => $language['code'],
-            'language-title' => $language['title']
+            'language-title' => $language['title'],
+            'href' => $reference,
+            'selected' => $translation['language_id'] == $this->papaya()->request->languageId ? 'true' : NULL
           ]
-        );
+        )->appendText($translation['term']);
       }
     } else {
       $modes = ['all' => 'flat', 'paged' => NULL];
