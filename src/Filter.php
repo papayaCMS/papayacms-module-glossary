@@ -306,10 +306,10 @@ class GlossaryFilter
         $entry = $glossary->appendElement(
           'term',
           [
-            'id' => $term['id'],
-            'term' => $term['term']
+            'id' => $term['id']
           ]
         );
+        $entry->appendElement('title', [], $term['term']);
         $entry->appendElement('explanation')->appendXml($term['explanation']);
         $synonyms = $entry->appendElement('synonyms');
         $this->appendWords($synonyms, 'synonym', $term['synonyms']);
