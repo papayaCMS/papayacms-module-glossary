@@ -3,7 +3,7 @@
 class GlossaryConnector extends PapayaObject {
 
   public function getTerm($termId, $languageId) {
-    $term = new GlossaryContentTerm();
+    $term = new GlossaryContentTermTranslation();
     $term->papaya($this->papaya());
     $term->activateLazyLoad(
        [
