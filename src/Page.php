@@ -291,15 +291,16 @@ class GlossaryPage
           $reference->setPageTitle(isset($linkTextModes[$word['type']]) ? $word['word'] : $word['term_title']);
           $reference->setParameters($parameters);
           $term = $group->appendElement(
-            'term',
-            [
+            'term',            [
               'type' => PapayaUtilArray::get($this->_linkTypes, $word['type'], ''),
               'href' => $reference,
             ]
           );
           $term->appendElement('title', [], $word['word']);
           $term->appendElement('updated')->appendText(PapayaUtilDate::timestampToString($word['term_modified']));
-          $term->appendElement('explanation')->appendXml($word['term_explanation']);
+          if ($this->configuration()->get('fullpage', FALSE)) {
+            $term->appendElement('explanation')->appendXml($word['term_explanation']);
+          }
         }
       }
     }
