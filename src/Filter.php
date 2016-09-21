@@ -295,21 +295,30 @@ class GlossaryFilter
 
   function appendTo(PapayaXmlElement $parent) {
     if (count($this->_used) > 0) {
-      $glossary = $parent->appendElement('glossary');
       $this->terms()->load(
         [
           'id' => array_keys($this->_used),
           'language_id' => $this->papaya()->request->languageId
         ]
       );
+    } elseif (count($this->words()) > 0) {
+      $this->terms()->load(
+        [
+          'id' => iterator_to_array(new PapayaIteratorArrayMapper($this->words(), 'term_id')),
+          'language_id' => $this->papaya()->request->languageId
+        ]
+      );
+    }
+    if (count($this->terms()) > 0) {
+      $glossary = $parent->appendElement('glossary');
       foreach ($this->terms() as $term) {
         $entry = $glossary->appendElement(
           'term',
           [
-            'id' => $term['id']
+            'id' => $term['id'],
+            'term' => $term['term']
           ]
         );
-        $entry->appendElement('title', [], $term['term']);
         $entry->appendElement('explanation')->appendXml($term['explanation']);
         $synonyms = $entry->appendElement('synonyms');
         $this->appendWords($synonyms, 'synonym', $term['synonyms']);
