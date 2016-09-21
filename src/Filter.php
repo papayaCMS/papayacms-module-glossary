@@ -335,7 +335,9 @@ class GlossaryFilter
       '((?:^|,\\s*)(?<word>[^,]*))u', $string, $matches, PREG_SET_ORDER
     );
     foreach ($matches as $word) {
-      $parent->appendElement($tagName, [], trim($word['word']));
+      if (trim($word['word']) != '') {
+        $parent->appendElement($tagName, [], trim($word['word']));
+      }
     }
   }
 
