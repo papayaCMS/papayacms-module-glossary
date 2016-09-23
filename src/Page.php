@@ -133,23 +133,27 @@ class GlossaryPage
     $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
     $outputMode = $this->parameters()->get('mode', NULL, new PapayaFilterList(['flat']));
 
-    $paging = new PapayaUiPagingCount(
-      'page',
-      $this->parameters()->get('page'),
-      $this->words()->absCount()
-    );
-    if (!empty($character)) {
-      $paging->reference->setParameters(
-        ['char' => $character]
+    if ($this->parameters()->get('mode', '') == 'flat') {
+      $paging = new PapayaUiPagingCount(
+        'page',
+        $this->parameters()->get('page'),
+        $this->words()->absCount()
       );
+      if (!empty($character)) {
+        $paging->reference->setParameters(
+          ['char' => $character]
+        );
+      }
+      $paging->itemsPerPage = $this->content()->get('steps', $this->_defaultPageLimit);
+    } else {
+      $paging = FALSE;
     }
-    $paging->itemsPerPage = $this->content()->get('steps', $this->_defaultPageLimit);
 
     $parameters = [];
     if (!empty($character)) {
       $parameters['char'] = $character;
     }
-    if (1 < ($pageOffset = $paging->getCurrentPage())) {
+    if ($paging && 1 < ($pageOffset = $paging->getCurrentPage())) {
       $parameters['page'] = $pageOffset;
     };
 
@@ -257,7 +261,9 @@ class GlossaryPage
         }
       }
       $groupsNode = $glossaryNode->appendElement('groups');
-      $groupsNode->append($paging);
+      if ($paging) {
+        $groupsNode->append($paging);
+      }
       $groups = [];
       foreach ($this->characters() as $group) {
         if (empty($group['character'])) {
@@ -545,10 +551,10 @@ class GlossaryPage
       if (!empty($character)) {
         $filter['character,contains'] = $character.'*';
       }
-      $pageSize = $this->content()->get('steps', $this->_defaultPageLimit, new PapayaFilterInteger(1));
       if ($this->parameters()->get('mode', '') == 'flat') {
         $this->_words->activateLazyLoad($filter);
       } else {
+        $pageSize = $this->content()->get('steps', $this->_defaultPageLimit, new PapayaFilterInteger(1));
         $this->_words->activateLazyLoad(
           $filter,
           $pageSize,
