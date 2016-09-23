@@ -406,7 +406,7 @@ class GlossaryPage
       )
     );
     $field->setDefaultValue(
-      [GlossaryContentTermWords::TYPE_TERM, GlossaryContentTermWords::TYPE_DERIVATION]
+      [GlossaryContentTermWords::TYPE_TERM]
     );
     $dialog->fields[] = $field = new PapayaUiDialogFieldSelectCheckboxes(
       new PapayaUiStringTranslated('Link Url'),
@@ -589,7 +589,7 @@ class GlossaryPage
   private function getLinkTypes() {
     return $this->content()->get(
       'glossary_word_types',
-      [GlossaryContentTermWords::TYPE_TERM, GlossaryContentTermWords::TYPE_DERIVATION],
+      [GlossaryContentTermWords::TYPE_TERM],
       new PapayaFilterLogicalAnd(
         new PapayaFilterArraySize(1),
         new PapayaFilterArray(
