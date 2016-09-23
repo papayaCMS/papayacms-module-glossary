@@ -242,13 +242,29 @@ class GlossaryPage
         )->appendText($translation['term']);
       }
     } else {
+      if ($character != '') {
+        $reference = clone $pageReference;
+        $reference->setParameters(
+          [
+            'mode' => $outputMode
+          ]
+        );
+        $glossaryNode->appendElement(
+          'link',
+          [
+            'rel' => 'up',
+            'href' => $reference
+          ]
+        );
+      }
       $modes = ['all' => 'flat', 'paged' => NULL];
       foreach ($modes as $relation => $mode) {
         if ($outputMode != $mode) {
           $reference = clone $pageReference;
           $reference->setParameters(
             [
-              'mode' => $mode
+              'mode' => $mode,
+              'char' => $character != '' ? $character : NULL
             ]
           );
           $glossaryNode->appendElement(
