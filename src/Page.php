@@ -194,6 +194,9 @@ class GlossaryPage
       $termNode->appendElement('source', [], $term['source']);
       $linksNode = $termNode->appendElement('links');
       foreach (explode("\n", $term['links']) as $link) {
+        if (empty($link)) {
+          continue;
+        }
         if (FALSE !== strpos($link, '=')) {
           list($caption, $url) = explode('=', $link, 2);
         } else {
