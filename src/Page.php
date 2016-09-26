@@ -133,7 +133,7 @@ class GlossaryPage
     $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
     $outputMode = $this->parameters()->get('mode', NULL, new PapayaFilterList(['flat']));
 
-    if ($this->parameters()->get('mode', '') == 'flat') {
+    if ($this->parameters()->get('mode', '') != 'flat') {
       $paging = new PapayaUiPagingCount(
         'page',
         $this->parameters()->get('page'),
