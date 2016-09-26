@@ -119,7 +119,20 @@ class GlossaryAdministrationContentTermChange extends PapayaUiControlCommandDial
       new PapayaUiStringTranslated('Source'), 'source'
     );
     $group->fields[] = $field = new PapayaUiDialogFieldTextareaLines(
-      new PapayaUiStringTranslated('Links'), 'links', 6, NULL, new PapayaFilterPcre('([^=]+=.+)')
+      new PapayaUiStringTranslated('Links'),
+      'links',
+      6,
+      NULL,
+      new PapayaFilterLogicalOr(
+        new PapayaFilterPcre('(^[^=]+=https?://.+$)'),
+        new PapayaFilterPcre('(^https?://.+$)')
+      )
+    );
+    $field->setHint(
+      new PapayaUiStringTranslated(
+        'Links for further research. One link each line; http:// may not be omitted. '.
+        'Titles may be set via: title of link=http://www.link.tld'
+      )
     );
     $dialog->buttons[] = new PapayaUiDialogButtonSubmit(new PapayaUiStringTranslated('Save'));
 

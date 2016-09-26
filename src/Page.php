@@ -191,9 +191,19 @@ class GlossaryPage
       );
       $termNode->appendElement('title', [], $term['term']);
       $termNode->appendElement('explanation')->appendXml($term['explanation']);
-      $groupNodes = [];
+      $termNode->appendElement('source', [], $term['source']);
+      $linksNode = $termNode->appendElement('links');
+      foreach (explode("\n", $term['links']) as $link) {
+        if (FALSE !== strpos($link, '=')) {
+          list($caption, $url) = explode('=', $link, 2);
+        } else {
+          $caption = $url = $link;
+        }
+        $linksNode->appendElement('link', ['href' => trim($url)], trim($caption));
+      }
 
       $term->words()->load($filter);
+      $groupNodes = [];
       foreach ($term->words() as $word) {
         $type = $word['type'];
         $groupTag = isset($this->_linkTypeGroups[$type]) ? $this->_linkTypeGroups[$type] : 'others';
