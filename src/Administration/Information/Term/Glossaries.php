@@ -63,12 +63,15 @@ class GlossaryAdministrationInformationTermGlossaries extends PapayaUiControlCom
     $this->callbacks()->onExecuteSuccessful = function() use ($dialog) {
       $termId = $this->_term['id'];
       $glossaryLinks = [];
-      foreach ($dialog->parameters()->get('term-glossaries') as $glossaryId) {
+      foreach ($dialog->parameters()->get('term-glossaries', []) as $glossaryId) {
         $glossaryLinks[] = ['term_id' => $termId, 'id' => (int)$glossaryId];
       }
       if (
         $this->_term->glossaries()->truncate(['term_id' => $termId]) &&
-        FALSE !== $this->_term->glossaries()->insert($glossaryLinks)
+        (
+          empty($glossaryLinks) ||
+          FALSE !== $this->_term->glossaries()->insert($glossaryLinks)
+        )
       ) {
         $this->papaya()->messages->dispatch(
           new PapayaMessageDisplayTranslated(
