@@ -7,9 +7,9 @@
     <field name="glossary_term_explanation" type="string" size="65535" null="no"/>
     <field name="glossary_term_source" type="string" size="65535" null="no"/>
     <field name="glossary_term_links" type="string" size="65535" null="no"/>
-    <field name="glossary_term_synonyms" type="string" size="1000" null="no"/>
-    <field name="glossary_term_derivations" type="string" size="1000" null="no"/>
-    <field name="glossary_term_abbreviations" type="string" size="1000" null="no"/>
+    <field name="glossary_term_synonyms" type="string" size="65535" null="no"/>
+    <field name="glossary_term_derivations" type="string" size="65535" null="no"/>
+    <field name="glossary_term_abbreviations" type="string" size="65535" null="no"/>
     <field name="glossary_term_modified" type="integer" size="4" null="no"/>
     <field name="glossary_term_created" type="integer" size="4" null="no"/>
   </fields>
