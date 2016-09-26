@@ -489,7 +489,21 @@ class GlossaryPage
     if (isset($definition)) {
       $this->_cacheDefinition = $definition;
     } elseif (NULL == $this->_cacheDefinition) {
-      $this->_cacheDefinition = new PapayaCacheIdentifierDefinitionPage();
+      $this->_cacheDefinition = new PapayaCacheIdentifierDefinitionGroup(
+        new PapayaCacheIdentifierDefinitionPage(),
+        new PapayaCacheIdentifierDefinitionParameters(
+          ['mode', 'char', 'term', 'page']
+        ),
+        new PapayaCacheIdentifierDefinitionCallback(
+          function() {
+            $pageUrl = new PapayaUiReferencePage();
+            $pageUrl->load($this->papaya()->request);
+            return [
+              $pageUrl->getPageTitle()
+            ];
+          }
+        )
+      );
     }
     return $this->_cacheDefinition;
   }
