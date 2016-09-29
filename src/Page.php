@@ -190,6 +190,7 @@ class GlossaryPage
         ]
       );
       $termNode->appendElement('title', [], $term['term']);
+      $termNode->appendElement('updated')->appendText(PapayaUtilDate::timestampToString($term['modified']));
       $termNode->appendElement('explanation')->appendXml($term['explanation']);
       $termNode->appendElement('source', [], $term['source']);
       $linksNode = $termNode->appendElement('links');
