@@ -23,10 +23,10 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
     $commands['change'] = new GlossaryAdministrationContentTermChange();
     $commands['delete'] = new GlossaryAdministrationContentTermDelete();
     $commands['delete-translation'] = new GlossaryAdministrationContentTermTranslationDelete();
-    $commands['reindex'] = new GlossaryAdministrationContentTermReindex();
-    $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_INDEX]);
-    $commands['export'] = new GlossaryAdministrationContentTermExport();
-    $commands->permission([$moduleId, GlossaryAdministration::PERMISSION_EXPORT]);
+    $commands['reindex'] = $command = new GlossaryAdministrationContentTermReindex();
+    $command->permission([$moduleId, GlossaryAdministration::PERMISSION_MANAGE_INDEX]);
+    $commands['export'] = $command = new GlossaryAdministrationContentTermExport();
+    $command->permission([$moduleId, GlossaryAdministration::PERMISSION_EXPORT]);
 
 
     $modes['glossaries'] = $commands = new PapayaUiControlCommandController('cmd', 'change');
