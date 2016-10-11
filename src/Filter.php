@@ -104,12 +104,12 @@ class GlossaryFilter
       new PapayaUiStringTranslated('Link Types'),
       'glossary_word_types',
       new PapayaUiStringTranslatedList(
-         [
-           GlossaryContentTermWords::TYPE_TERM => 'Term',
-           GlossaryContentTermWords::TYPE_SYNONYM => 'Synonym',
-           GlossaryContentTermWords::TYPE_ABBREVIATION => 'Abbreviation',
-           GlossaryContentTermWords::TYPE_DERIVATION => 'Derivation'
-         ]
+        [
+          GlossaryContentTermWords::TYPE_TERM => 'Term',
+          GlossaryContentTermWords::TYPE_SYNONYM => 'Synonym',
+          GlossaryContentTermWords::TYPE_ABBREVIATION => 'Abbreviation',
+          GlossaryContentTermWords::TYPE_DERIVATION => 'Derivation'
+        ]
       )
     );
     $field->setDefaultValue(
@@ -256,7 +256,6 @@ class GlossaryFilter
         if (count($parts) > 1) {
           /** @var PapayaXmlElement $parentNode */
           $parentNode = $textNode->parentNode;
-          $parentNode->removeChild($textNode);
           foreach ($parts as $part) {
             $lower = PapayaUtilStringUtf8::toLowerCase($part);
             if (isset($words[$lower])) {
@@ -272,19 +271,26 @@ class GlossaryFilter
               if ($this->_isFullPage) {
                 $this->_used[$termId][$lower] = TRUE;
               }
-              $parentNode->appendElement(
-                'a',
-                [
-                  'href' => (string)$reference,
-                  'class' => $linkClassName,
-                  'data-term-id' => $termId
-                ],
-                $part
+              $parentNode->insertBefore(
+                $document->createElement(
+                  'a',
+                  $part,
+                  [
+                    'href' => (string)$reference,
+                    'class' => $linkClassName,
+                    'data-term-id' => $termId
+                  ]
+                ),
+                $textNode
               );
             } else {
-              $parentNode->appendText($part);
+              $parentNode->insertBefore(
+                $document->createTextNode($part),
+                $textNode
+              );
             }
           }
+          $parentNode->removeChild($textNode);
         }
       }
       return $document->documentElement->saveFragment();
