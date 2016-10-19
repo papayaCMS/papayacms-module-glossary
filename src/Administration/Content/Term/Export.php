@@ -17,7 +17,10 @@ class GlossaryAdministrationContentTermExport
     $columns = $this->terms()->mapping()->getProperties();
     $response = $this->papaya()->response;
     $response->setContentType('text/csv');
-    $response->headers()->set('Content-Disposition', 'attachment; filename="glossary_export.csv"');
+    $response->headers()->set(
+      'Content-Disposition',
+      'attachment; filename="glossary_export_'.PapayaUtilDate::timestampToString(time(), FALSE, FALSE).'.csv"'
+    );
     $response->content(
       new PapayaResponseContentList(
         new PapayaIteratorCallback(
@@ -32,6 +35,9 @@ class GlossaryAdministrationContentTermExport
                   case 'created' :
                   case 'modified' :
                     $result[$name] = PapayaUtilDate::timestampToString($row[$name], TRUE, TRUE, FALSE);
+                    break;
+                  case 'explanation' :
+                    $result[$name] = strip_tags($row[$name]);
                     break;
                   default:
                     $result[$name] = (string)$row[$name];

@@ -168,7 +168,7 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
       $toolbar->elements[] = new PapayaUiToolbarSeparator();
       /** @var PapayaUiControlCommand $command */
       $command = $this->commands()['terms']['reindex'];
-      if ($command->condition()->validate()) {
+      if ($command->validatePermission()) {
         $toolbar->elements[] = $button = new PapayaUiToolbarButton();
         $button->reference->setParameters(
           ['mode' => 'terms', 'cmd' => 'reindex'],
@@ -179,7 +179,7 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
       }
       /** @var PapayaUiControlCommand $command */
       $command = $this->commands()['terms']['export'];
-      if ($command->condition()->validate()) {
+      if ($command->validatePermission()) {
         $toolbar->elements[] = $button = new PapayaUiToolbarButton();
         $button->reference->setParameters(
           [
