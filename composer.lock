@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/papayaCMS/papayacms-core.git",
-                "reference": "5bc01c0ea7edaad1fd92548288fe654f7b91bc5f"
+                "reference": "299a4617ee849653e14265f3be16d3ec1f26aee3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/papayaCMS/papayacms-core/zipball/5bc01c0ea7edaad1fd92548288fe654f7b91bc5f",
-                "reference": "5bc01c0ea7edaad1fd92548288fe654f7b91bc5f",
+                "url": "https://api.github.com/repos/papayaCMS/papayacms-core/zipball/299a4617ee849653e14265f3be16d3ec1f26aee3",
+                "reference": "299a4617ee849653e14265f3be16d3ec1f26aee3",
                 "shasum": ""
             },
             "require-dev": {
@@ -44,7 +44,7 @@
             ],
             "description": "papaya CMS core framework",
             "homepage": "http://www.papaya-cms.com/",
-            "time": "2016-09-28 14:43:20"
+            "time": "2016-11-18 13:32:29"
         }
     ],
     "packages-dev": [
@@ -54,12 +54,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/papayaCMS/papayacms-administration.git",
-                "reference": "76d2a3eddd9001157aa2c8189f87773ee087f420"
+                "reference": "dd97c9366bef505239d69d6abaf399d6cc601d40"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/papayaCMS/papayacms-administration/zipball/76d2a3eddd9001157aa2c8189f87773ee087f420",
-                "reference": "76d2a3eddd9001157aa2c8189f87773ee087f420",
+                "url": "https://api.github.com/repos/papayaCMS/papayacms-administration/zipball/dd97c9366bef505239d69d6abaf399d6cc601d40",
+                "reference": "dd97c9366bef505239d69d6abaf399d6cc601d40",
                 "shasum": ""
             },
             "require": {
@@ -67,7 +67,7 @@
             },
             "type": "papaya-administration-ui",
             "notification-url": "https://packagist.org/downloads/",
-            "time": "2016-09-16 12:28:57"
+            "time": "2016-10-28 15:09:45"
         },
         {
             "name": "papaya/composer-plugins",

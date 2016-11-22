@@ -110,6 +110,13 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
         [$this->parameterGroup(), 'offset'], 0, PapayaUiToolbarPaging::MODE_OFFSET
       );
       $paging->papaya($this->papaya());
+      $paging->reference()->setParameters(
+        [
+          'glossary_id' => $this->parameters()->get('glossary_id', 0) ?: NULL,
+          'search-for' => $this->parameters()->get('search-for', '') ?: NULL
+        ],
+        $this->parameterGroup()
+      );
     }
     return $this->_paging;
   }
