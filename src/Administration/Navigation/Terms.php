@@ -2,6 +2,8 @@
 
 class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
 
+  const ITEMS_PER_PAGE = 25;
+
   /**
    * @var PapayaUiDialog
    */
@@ -110,6 +112,7 @@ class GlossaryAdministrationNavigationTerms extends PapayaUiControlCommand {
         [$this->parameterGroup(), 'offset'], 0, PapayaUiToolbarPaging::MODE_OFFSET
       );
       $paging->papaya($this->papaya());
+      $paging->itemsPerPage = self::ITEMS_PER_PAGE;
       $paging->reference()->setParameters(
         [
           'glossary_id' => $this->parameters()->get('glossary_id', 0) ?: NULL,
