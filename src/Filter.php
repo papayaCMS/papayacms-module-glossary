@@ -206,7 +206,7 @@ class GlossaryFilter
           )
         )
       ];
-      $glossaryId = $this->getGlossaryFromDomainOptions($this->content()->get('glossary_id', 0));
+      $glossaryId = $this->getGlossaryFromDomainOptions($this->content()->get('glossary', 0));
       if ($glossaryId > 0) {
         $filter['glossary_id'] = $glossaryId;
       }
