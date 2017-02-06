@@ -97,18 +97,21 @@ class GlossaryAdministrationContentTermChange extends PapayaUiControlCommandDial
     if ($termId > 0) {
     }
     $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
-      new PapayaUiStringTranslated('Term'), 'term'
+      new PapayaUiStringTranslated('Term'), 'term', 1024, NULL, new PapayaFilterPcre('(^[^,]+$)')
     );
     $field->setMandatory(TRUE);
     $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
       new PapayaUiStringTranslated('Synonyms'), 'synonyms'
     );
+    $field->setHint(new PapayaUiStringTranslated('Comma separated list.'));
     $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
       new PapayaUiStringTranslated('Abbreviations'), 'abbreviations'
     );
+    $field->setHint(new PapayaUiStringTranslated('Comma separated list.'));
     $dialog->fields[] = $field = new PapayaUiDialogFieldInput(
       new PapayaUiStringTranslated('Derivations'), 'derivations'
     );
+    $field->setHint(new PapayaUiStringTranslated('Comma separated list.'));
     $dialog->fields[] = $group = new PapayaUiDialogFieldGroup(
       new PapayaUiStringTranslated('Texts')
     );
