@@ -167,7 +167,7 @@ class GlossaryFilter
     $options = isset($options) ? $options : new PapayaObjectParameters([]);
     $this->_isFullPage = $options->get('fullpage', false);
     $this->_used = [];
-    $tokens = preg_split('([^\pL]+)u', $content);
+    $tokens = preg_split('([^\pL\d]+)u', $content);
     $ignoreWords = iterator_to_array(
       new PapayaIteratorCallback(
         $this->ignoreWords(),
@@ -219,6 +219,18 @@ class GlossaryFilter
       return $content;
     }
     try {
+      $words = iterator_to_array(
+        new PapayaIteratorCallback(
+          $this->words(),
+          function($record) {
+            return PapayaUtilStringUtf8::toLowerCase($record['word']);
+          },
+          PapayaIteratorCallback::MODIFY_KEYS
+        )
+      );
+      if (count($words) === 0) {
+        return $content;
+      }
       $targetPageId = $this->content()->get('glossary_page_id', 0);
       $linkClassName = $this->content()->get('glossary_link_class', 'glossaryTermLink');
       if ($this->content()->get('add_refpage', 0)) {
@@ -233,15 +245,6 @@ class GlossaryFilter
         }
       }
       $linkTextModes = array_flip($this->content()->get('glossary_word_url_text', []));
-      $words = iterator_to_array(
-        new PapayaIteratorCallback(
-          $this->words(),
-          function($record) {
-            return PapayaUtilStringUtf8::toLowerCase($record['word']);
-          },
-          PapayaIteratorCallback::MODIFY_KEYS
-        )
-      );
       uksort(
         $words,
         function($one, $two) {
