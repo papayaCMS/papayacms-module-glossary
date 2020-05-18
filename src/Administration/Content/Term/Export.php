@@ -21,6 +21,7 @@ class GlossaryAdministrationContentTermExport
       'Content-Disposition',
       'attachment; filename="glossary_export_'.PapayaUtilDate::timestampToString(time(), FALSE, FALSE).'.csv"'
     );
+    $withHTML = $this->parameters()->get('with-html', false);
     $response->content(
       new PapayaResponseContentList(
         new PapayaIteratorCallback(
@@ -28,7 +29,7 @@ class GlossaryAdministrationContentTermExport
             [$columns],
             new PapayaIteratorCallback(
               $this->terms(),
-              function(array $row) use ($columns) {
+              function(array $row) use ($columns, $withHTML) {
                 $result = [];
                 foreach ($columns as $name) {
                   switch ($name) {
@@ -37,7 +38,7 @@ class GlossaryAdministrationContentTermExport
                     $result[$name] = PapayaUtilDate::timestampToString($row[$name], TRUE, TRUE, FALSE);
                     break;
                   case 'explanation' :
-                    $result[$name] = strip_tags($row[$name]);
+                    $result[$name] = $withHTML ? $row[$name] : strip_tags($row[$name]);
                     break;
                   default:
                     $result[$name] = (string)$row[$name];
