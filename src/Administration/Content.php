@@ -192,6 +192,19 @@ class GlossaryAdministrationContent extends PapayaAdministrationPagePart {
         );
         $button->caption = new PapayaUiStringTranslated('Export CSV');
         $button->image = 'actions-download';
+        $toolbar->elements[] = $button = new PapayaUiToolbarButton();
+        $button->reference->setParameters(
+          [
+            'mode' => 'terms',
+            'cmd' => 'export',
+            'search-for' => $this->parameters()->get('search-for', ''),
+            'glossary_id' => $this->parameters()->get('glossary_id', 0),
+            'with-html' => 1
+          ],
+          $this->parameterGroup()
+        );
+        $button->caption = new PapayaUiStringTranslated('Export CSV (with HTML)');
+        $button->image = 'actions-download';
       }
       break;
     }
